@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/menu_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Menu());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Menu extends StatelessWidget {
+  const Menu({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,21 +14,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
       ),
-      home: const MyHomePage(title: 'Healthy Plan'),
+      home: const MyMenuPage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MyMenuPage extends StatefulWidget {
+  const MyMenuPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyMenuPage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyMenuPage> {
   String selectedPage = '';
 
   @override
@@ -93,10 +92,6 @@ class _MyHomePageState extends State<MyHomePage> {
               leading: const Icon(Icons.message),
               title: const Text('เมนู'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Menu()),
-                );
                 setState(() {
                   selectedPage = 'Menu';
                 });
