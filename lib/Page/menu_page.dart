@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_plan/Page/profile_page.dart';
+import 'package:healthy_plan/main.dart';
 
 void main() {
   runApp(const Menu());
@@ -77,25 +79,39 @@ class _MyHomePageState extends State<MyMenuPage> {
                 ],
               ),
             ),
+
             ListTile(
-              leading: const Icon(Icons.account_circle),
-              title: const Text('โปรไฟล์'),
+              leading: const Icon(Icons.home),
+              title: const Text('หน้าหลัก'),
               onTap: () {
-                setState(() {});
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.message),
-              title: const Text('เมนู'),
-              onTap: () {
-                setState(() {});
+                setState(() {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  );
+                });
               },
             ),
 
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              leading: const Icon(Icons.account_circle),
+              title: const Text('โปรไฟล์'),
               onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Profile()),
+                );
+                setState(() {});
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.food_bank_outlined),
+              title: const Text('เมนู'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Menu()),
+                );
                 setState(() {});
               },
             ),
@@ -122,9 +138,7 @@ class _MyHomePageState extends State<MyMenuPage> {
                     horizontal: 20,
                   ),
                 ),
-                onChanged: (value) {
-                  print('Search: $value');
-                },
+                onChanged: (value) {},
               ),
             ),
             const SizedBox(height: 20),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/Page/menu_page.dart';
+import 'package:healthy_plan/Page/profile_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -81,16 +82,33 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('หน้าหลัก'),
+              onTap: () {
+                setState(() {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyApp()),
+                  );
+                  selectedPage = 'Settings';
+                });
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.account_circle),
               title: const Text('โปรไฟล์'),
               onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Profile()),
+                );
                 setState(() {
                   selectedPage = 'Profile';
                 });
               },
             ),
             ListTile(
-              leading: const Icon(Icons.message),
+              leading: const Icon(Icons.food_bank_outlined),
               title: const Text('เมนู'),
               onTap: () {
                 Navigator.push(
@@ -99,16 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
                 setState(() {
                   selectedPage = 'Menu';
-                });
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                setState(() {
-                  selectedPage = 'Settings';
                 });
               },
             ),
