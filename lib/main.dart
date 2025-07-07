@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Healthy Plan',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF6AFF00)),
       ),
       home: const MyHomePage(title: 'Healthy Plan'),
     );

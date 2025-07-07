@@ -134,9 +134,20 @@ class _MyHomePageState extends State<MyProfilePage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'ชื่อ',
-                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -149,9 +160,20 @@ class _MyHomePageState extends State<MyProfilePage> {
 
                 TextFormField(
                   controller: _surNameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'นามสกุล',
-                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -165,9 +187,20 @@ class _MyHomePageState extends State<MyProfilePage> {
                 TextFormField(
                   controller: _ageController,
                   keyboardType: TextInputType.numberWithOptions(),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'อายุ',
-                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -181,9 +214,20 @@ class _MyHomePageState extends State<MyProfilePage> {
                 TextFormField(
                   controller: _weightController,
                   keyboardType: TextInputType.numberWithOptions(),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'น้ำหนัก',
-                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -197,9 +241,20 @@ class _MyHomePageState extends State<MyProfilePage> {
                 TextFormField(
                   controller: _heightController,
                   keyboardType: TextInputType.numberWithOptions(),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'ส่วนสูง',
-                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Color(0xFF1AA916)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
