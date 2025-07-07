@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/menu_page.dart';
-import 'package:healthy_plan/main.dart';
+import 'package:healthy_plan/drawer.dart';
 
 void main() {
   runApp(const Profile());
@@ -46,84 +45,7 @@ class _MyHomePageState extends State<MyProfilePage> {
 
         title: Text(widget.title),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.lightGreenAccent),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 50, color: Colors.grey),
-                  ),
-                  Stack(
-                    children: [
-                      Text(
-                        'ชื่อ - นามสกุล',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          foreground:
-                              Paint()
-                                ..style = PaintingStyle.stroke
-                                ..strokeWidth = 2
-                                ..color = Colors.black,
-                        ),
-                      ),
-                      Text(
-                        'ชื่อ - นามสกุล',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('หน้าหลัก'),
-              onTap: () {
-                setState(() {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyApp()),
-                  );
-                });
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.account_circle),
-              title: const Text('โปรไฟล์'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Profile()),
-                );
-                setState(() {});
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.food_bank_outlined),
-              title: const Text('เมนู'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Menu()),
-                );
-                setState(() {});
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const MyDrawer(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
