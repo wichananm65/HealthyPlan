@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/main.dart';
+import 'package:healthy_plan/Page/main.dart';
 
 void main() => runApp(const Login());
 

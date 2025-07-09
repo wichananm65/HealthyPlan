@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_plan/Page/bookmarks.dart';
 import 'package:healthy_plan/Page/menu_page.dart';
 import 'package:healthy_plan/Page/profile_page.dart';
-import 'package:healthy_plan/main.dart';
+import 'package:healthy_plan/Page/main.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -75,6 +76,16 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const Menu()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bookmark),
+            title: const Text('รายการโปรด'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Bookmarks()),
               );
             },
           ),
