@@ -18,11 +18,10 @@ class TodaySummaryPage extends StatefulWidget {
 }
 
 class _TodaySummaryPageState extends State<TodaySummaryPage> {
-  final double recommendedLimit = 50.0; // WHO recommendation: 50g per day
+  final double recommendedLimit = 2000.0; // พลังงานแนะนำต่อวัน (kcal)
 
-  double get totalSugar {
+  double get totalCalories {
     double total = 0.0;
-
     if (widget.breakfastFoods != null) {
       total += widget.breakfastFoods!.fold(0.0, (sum, food) => sum + food[1]);
     }
@@ -32,16 +31,15 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
     if (widget.dinnerFoods != null) {
       total += widget.dinnerFoods!.fold(0.0, (sum, food) => sum + food[1]);
     }
-
     return total;
   }
 
-  double getMealSugar(List<List<dynamic>>? foods) {
+  double getMealCalories(List<List<dynamic>>? foods) {
     if (foods == null || foods.isEmpty) return 0.0;
     return foods.fold(0.0, (sum, food) => sum + food[1]);
   }
 
-  Color _getSugarStatusColor(double amount) {
+  Color _getStatusColor(double amount) {
     if (amount <= recommendedLimit * 0.7) {
       return Colors.green;
     } else if (amount <= recommendedLimit) {
@@ -51,7 +49,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
     }
   }
 
-  String _getSugarStatus(double amount) {
+  String _getStatusText(double amount) {
     if (amount <= recommendedLimit * 0.7) {
       return 'ดี';
     } else if (amount <= recommendedLimit) {
@@ -72,7 +70,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
     String emoji,
     List<List<dynamic>>? foods,
   ) {
-    double mealSugarAmount = getMealSugar(foods);
+    double mealCalories = getMealCalories(foods);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -80,15 +78,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.green.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +102,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${mealSugarAmount.toStringAsFixed(1)}g',
+                  '${mealCalories.toStringAsFixed(0)} kcal',
                   style: TextStyle(
                     color: Colors.green.shade700,
                     fontWeight: FontWeight.w600,
@@ -143,7 +133,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                             ),
                           ),
                           Text(
-                            '${food[1]}g',
+                            '${food[1]} kcal',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -183,11 +173,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                     SizedBox(height: 16),
                     Text(
                       'ยังไม่มีแผนอาหารวันนี้',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                     SizedBox(height: 8),
                     Text(
@@ -203,7 +189,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Today's Summary Card
+                    // Summary
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -235,41 +221,41 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'ปริมาณน้ำตาลรวมวันนี้',
+                            'พลังงานรวมวันนี้',
                             style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                           Text(
-                            '${totalSugar.toStringAsFixed(1)} กรัม',
+                            '${totalCalories.toStringAsFixed(0)} kcal',
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: _getSugarStatusColor(totalSugar),
+                              color: _getStatusColor(totalCalories),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'สถานะ: ${_getSugarStatus(totalSugar)}',
+                            'สถานะ: ${_getStatusText(totalCalories)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color: _getSugarStatusColor(totalSugar),
+                              color: _getStatusColor(totalCalories),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 12),
                           LinearProgressIndicator(
-                            value: (totalSugar / recommendedLimit).clamp(
+                            value: (totalCalories / recommendedLimit).clamp(
                               0.0,
                               1.0,
                             ),
                             backgroundColor: Colors.grey.shade200,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              _getSugarStatusColor(totalSugar),
+                              _getStatusColor(totalCalories),
                             ),
                             minHeight: 8,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${((totalSugar / recommendedLimit) * 100).toInt()}% ของปริมาณที่แนะนำ',
+                            '${((totalCalories / recommendedLimit) * 100).toInt()}% ของพลังงานที่แนะนำ',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -281,7 +267,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
 
                     const SizedBox(height: 24),
 
-                    // Recommendation Info
+                    // Recommendation
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -295,7 +281,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'แนะนำ: บริโภคน้ำตาลไม่เกิน ${recommendedLimit.toInt()} กรัม/วัน',
+                              'แนะนำ: บริโภคพลังงานไม่เกิน ${recommendedLimit.toInt()} kcal/วัน',
                               style: TextStyle(
                                 color: Colors.blue.shade700,
                                 fontWeight: FontWeight.w500,
@@ -307,8 +293,6 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                     ),
 
                     const SizedBox(height: 24),
-
-                    // Meals Breakdown
                     const Text(
                       'รายละเอียดตามมื้อ',
                       style: TextStyle(
@@ -325,7 +309,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
 
                     const SizedBox(height: 24),
 
-                    // Tips Section
+                    // Tips
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -355,11 +339,11 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            totalSugar <= recommendedLimit * 0.7
-                                ? '✅ ยอดเยี่ยม! คุณควบคุมน้ำตาลได้ดีในวันนี้\n• รักษาระดับนี้ต่อไป\n• ดื่มน้ำเปล่าเพิ่มเติม'
-                                : totalSugar <= recommendedLimit
-                                ? '⚠️ ปานกลาง อยู่ในเกณฑ์ที่ยอมรับได้\n• ระวังการทานขนมหวานเพิ่ม\n• เลือกผลไม้สดแทนขนมหวาน'
-                                : '🚨 เกินปริมาณที่แนะนำแล้ว\n• ลดเครื่องดื่มหวานในมื้อถัดไป\n• เพิ่มการออกกำลังกาย\n• ดื่มน้ำเปล่ามากขึ้น',
+                            totalCalories <= recommendedLimit * 0.7
+                                ? '✅ ยอดเยี่ยม! คุณควบคุมพลังงานได้ดีในวันนี้\n• รักษาระดับนี้ต่อไป\n• พักผ่อนให้เพียงพอ'
+                                : totalCalories <= recommendedLimit
+                                ? '⚠️ ปานกลาง ยังอยู่ในเกณฑ์ที่ยอมรับได้\n• หลีกเลี่ยงอาหารที่มีไขมันสูง\n• ออกกำลังกายเล็กน้อย'
+                                : '🚨 พลังงานเกินที่แนะนำแล้ว\n• ลดมื้อเย็นหรือขนม\n• เพิ่มการเคลื่อนไหวระหว่างวัน\n• ดื่มน้ำมากขึ้น',
                             style: const TextStyle(fontSize: 14, height: 1.5),
                           ),
                         ],
