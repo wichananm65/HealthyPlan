@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/bookmarks.dart';
+import 'package:healthy_plan/Page/bookmarks_page.dart';
+import 'package:healthy_plan/Page/home_page.dart';
 import 'package:healthy_plan/Page/menu_page.dart';
 import 'package:healthy_plan/Page/profile_page.dart';
-import 'package:healthy_plan/Page/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  MyDrawer({super.key});
+  final user = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class MyDrawer extends StatelessWidget {
                 Stack(
                   children: [
                     Text(
-                      'ชื่อ - นามสกุล',
+                      user.email!,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -36,8 +38,8 @@ class MyDrawer extends StatelessWidget {
                               ..color = Colors.black,
                       ),
                     ),
-                    const Text(
-                      'ชื่อ - นามสกุล',
+                    Text(
+                      user.email!,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -55,7 +57,7 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const MyApp()),
+                MaterialPageRoute(builder: (context) => const HomePage()),
               );
             },
           ),
@@ -87,6 +89,16 @@ class MyDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => const Bookmarks()),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text(
+              'ออกจากระบบ',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
             },
           ),
         ],
