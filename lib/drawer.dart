@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/bookmarks_page.dart';
-import 'package:healthy_plan/Page/home_page.dart';
-import 'package:healthy_plan/Page/menu_page.dart';
-import 'package:healthy_plan/Page/profile_page.dart';
+import 'package:healthy_plan/pages/bookmarks_page.dart';
+import 'package:healthy_plan/pages/home_page.dart';
+import 'package:healthy_plan/pages/menu_page.dart';
+import 'package:healthy_plan/pages/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MyDrawer extends StatelessWidget {

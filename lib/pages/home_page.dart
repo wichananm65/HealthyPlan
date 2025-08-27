@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/summary.dart';
+import 'package:healthy_plan/pages/summary.dart';
 import 'package:healthy_plan/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

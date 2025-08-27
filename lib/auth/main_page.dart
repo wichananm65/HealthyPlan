@@ -1,12 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/home_page.dart';
-import 'package:healthy_plan/Page/login_page.dart';
-import 'package:healthy_plan/drawer.dart';
-import 'package:healthy_plan/Page/summary.dart';
+import 'package:healthy_plan/auth/auth_page.dart';
+import 'package:healthy_plan/pages/home_page.dart';
 
 class MainPage extends StatelessWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +15,7 @@ class MainPage extends StatelessWidget {
           if (snapshot.hasData) {
             return HomePage();
           } else {
-            return LoginPage();
+            return AuthPage();
           }
         },
       ),

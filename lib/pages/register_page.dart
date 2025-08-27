@@ -1,62 +1,89 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:healthy_plan/Page/main_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  final VoidCallback showLoginPage;
+
+  const RegisterPage({super.key, required this.showLoginPage});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Login UI',
-      theme: ThemeData(primarySwatch: Colors.teal),
-      home: const LoginPage(),
-    );
-  }
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   String? _errorMessageEmail;
   String? _errorMessagePassword;
 
-  Future signIn() async {
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future signUp() async {
     setState(() {
       _errorMessageEmail = null;
       _errorMessagePassword = null;
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // ถ้าเข้าสู่ระบบสำเร็จ
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
+      // logout ทันที เพื่อไม่ให้ auto-login
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return; // ตรวจสอบก่อน show dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              content: const Text(
+                'สมัครสมาชิกสำเร็จ!\nโปรดกลับไปหน้า Login เพื่อเข้าสู่ระบบ',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, color: Colors.black),
+              ),
+              actions: [
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      widget.showLoginPage();
+                    },
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(color: Color(0xFF1AA916), fontSize: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() {
-        if (e.code == 'user-not-found' || e.code == 'invalid-email') {
+        if (e.code == 'email-already-in-use') {
+          _errorMessageEmail = 'อีเมลนี้มีบัญชีอยู่แล้ว';
+        } else if (e.code == 'invalid-email') {
           _errorMessageEmail = 'อีเมลไม่ถูกต้อง';
+        } else if (e.code == 'weak-password') {
+          _errorMessagePassword = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
         } else {
-          _errorMessagePassword = 'รหัสผ่านไม่ถูกต้อง';
+          _errorMessagePassword = 'เกิดข้อผิดพลาด';
         }
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -79,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       const Text(
-                        'Welcome To Healthy Plan!!',
+                        'สมัครสมาชิก Healthy Plan!!',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -137,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 24),
                       GestureDetector(
-                        onTap: signIn,
+                        onTap: signUp,
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -146,12 +173,20 @@ class _LoginPageState extends State<LoginPage> {
                             border: Border.all(color: const Color(0xFF1AA916)),
                           ),
                           child: const Text(
-                            'Sign In',
+                            'สมัครสมาชิก',
                             style: TextStyle(
                               fontSize: 18,
                               color: Color(0xFF1AA916),
                             ),
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: widget.showLoginPage,
+                        child: Text(
+                          'มีบัญชีอยู่แล้ว',
+                          style: TextStyle(color: Colors.purple),
                         ),
                       ),
                     ],
