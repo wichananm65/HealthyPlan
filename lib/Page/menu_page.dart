@@ -33,12 +33,8 @@ class _MyHomePageState extends State<MyMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
-      ),
-      drawer: const MyDrawer(),
+      appBar: AppBar(backgroundColor: Colors.green, title: Text(widget.title)),
+      drawer: MyDrawer(),
       body: Center(
         child: Column(
           children: <Widget>[

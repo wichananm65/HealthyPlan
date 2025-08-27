@@ -159,10 +159,10 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.green,
         title: const Text('สรุปแผนวันนี้'),
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(),
       body:
           !hasAnyFood
               ? const Center(

@@ -15,7 +15,7 @@ class Profile extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
       ),
-      home: const MyProfilePage(title: 'เมนู'),
+      home: const MyProfilePage(title: 'Profile'),
     );
   }
 }
@@ -40,12 +40,8 @@ class _MyHomePageState extends State<MyProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
-      ),
-      drawer: const MyDrawer(),
+      appBar: AppBar(backgroundColor: Colors.green, title: Text(widget.title)),
+      drawer: MyDrawer(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
