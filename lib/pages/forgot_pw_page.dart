@@ -26,6 +26,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
 
         showDialog(
+          // ignore: use_build_context_synchronously
           context: context,
           builder: (context) {
             return const AlertDialog(
@@ -37,6 +38,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
       } on FirebaseAuthException catch (e) {
         showDialog(
+          // ignore: use_build_context_synchronously
           context: context,
           builder: (context) {
             return AlertDialog(content: Text(e.message.toString()));
@@ -92,11 +94,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               onPressed: passwordReset,
               color: Colors.green,
               textColor: Colors.white,
-              child: const Text('รีเซ็ทรหัสผ่าน'),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(100),
                 side: const BorderSide(color: Colors.green),
               ),
+              child: const Text('รีเซ็ทรหัสผ่าน'),
             ),
           ],
         ),

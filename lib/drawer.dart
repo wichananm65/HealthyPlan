@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:healthy_plan/services/user_service.dart';
 
 class MyDrawer extends StatelessWidget {
-  MyDrawer({super.key});
+  const MyDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,9 @@ class MyDrawer extends StatelessWidget {
                 Stack(
                   children: [
                     Text(
-                      '${UserService().getName()}',
+                      UserService().getName() +
+                          ' ' +
+                          UserService().getLastName(),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -39,7 +41,9 @@ class MyDrawer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${UserService().getName()}',
+                      UserService().getName() +
+                          ' ' +
+                          UserService().getLastName(),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -98,8 +102,8 @@ class MyDrawer extends StatelessWidget {
               style: TextStyle(color: Colors.red),
             ),
             onTap: () async {
-              await FirebaseAuth.instance.signOut();
               await UserService().clearCache();
+              await FirebaseAuth.instance.signOut();
             },
           ),
         ],

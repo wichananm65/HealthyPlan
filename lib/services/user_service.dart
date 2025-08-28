@@ -14,14 +14,10 @@ class UserService {
   double? _weight;
   double? _height;
 
-  /// โหลด uid จาก SQLite และข้อมูลจาก Firestore
   Future<void> loadUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
-
-    // โหลด uid จาก SQLite
     _uid = await UserDB().getUid();
 
-    // ถ้าไม่มี uid ใน DB → ใช้ FirebaseAuth
     if (_uid == null && currentUser != null) {
       _uid = currentUser.uid;
       await UserDB().saveUid(_uid!);
@@ -29,7 +25,6 @@ class UserService {
 
     if (_uid == null) return;
 
-    // โหลดข้อมูลจาก Firestore
     final doc =
         await FirebaseFirestore.instance.collection('users').doc(_uid).get();
 
@@ -45,7 +40,6 @@ class UserService {
     }
   }
 
-  /// เคลียร์ cache (ตอน logout)
   Future<void> clearCache() async {
     await UserDB().clearUid();
     _uid = null;
@@ -56,14 +50,12 @@ class UserService {
     _height = null;
   }
 
-  // getter
   String getName() => _firstName ?? '';
   String getLastName() => _lastName ?? '';
   int getAge() => _age ?? 0;
   double getWeight() => _weight ?? 0;
   double getHeight() => _height ?? 0;
 
-  // refresh ข้อมูลจาก Firestore
   Future<void> refresh() async {
     if (_uid == null) return;
 
