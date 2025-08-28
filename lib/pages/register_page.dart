@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,33 +15,119 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _heightController = TextEditingController();
 
   String? _errorMessageEmail;
   String? _errorMessagePassword;
   String? _errorMessageConfirmPassword;
+  String? _errorMessageFirstName;
+  String? _errorMessageLastName;
+  String? _errorMessageAge;
+  String? _errorMessageWeight;
+  String? _errorMessageHeight;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _ageController.dispose();
+    _weightController.dispose();
+    _heightController.dispose();
     super.dispose();
   }
 
-  Future signUp() async {
+  bool _validateFields() {
+    bool valid = true;
+
     setState(() {
       _errorMessageEmail = null;
       _errorMessagePassword = null;
       _errorMessageConfirmPassword = null;
+      _errorMessageFirstName = null;
+      _errorMessageLastName = null;
+      _errorMessageAge = null;
+      _errorMessageWeight = null;
+      _errorMessageHeight = null;
+
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final confirmPassword = _confirmPasswordController.text.trim();
+      final firstName = _firstNameController.text.trim();
+      final lastName = _lastNameController.text.trim();
+      final age = _ageController.text.trim();
+      final weight = _weightController.text.trim();
+      final height = _heightController.text.trim();
+
+      final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+
+      if (email.isEmpty) {
+        _errorMessageEmail = 'กรุณากรอกอีเมล';
+        valid = false;
+      } else if (!emailRegex.hasMatch(email)) {
+        _errorMessageEmail = 'รูปแบบอีเมลไม่ถูกต้อง';
+        valid = false;
+      }
+
+      if (password.isEmpty) {
+        _errorMessagePassword = 'กรุณากรอกรหัสผ่าน';
+        valid = false;
+      } else if (password.length < 6) {
+        _errorMessagePassword = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+        valid = false;
+      }
+
+      if (confirmPassword != password) {
+        _errorMessageConfirmPassword = 'รหัสผ่านไม่ตรงกัน';
+        valid = false;
+      }
+
+      if (firstName.isEmpty) {
+        _errorMessageFirstName = 'กรุณากรอกชื่อ';
+        valid = false;
+      }
+
+      if (lastName.isEmpty) {
+        _errorMessageLastName = 'กรุณากรอกนามสกุล';
+        valid = false;
+      }
+
+      if (age.isEmpty) {
+        _errorMessageAge = 'กรุณากรอกอายุ';
+        valid = false;
+      } else if (int.tryParse(age) == null || int.parse(age) < 1) {
+        _errorMessageAge = 'กรุณากรอกอายุให้ถูกต้อง';
+        valid = false;
+      }
+
+      if (weight.isEmpty) {
+        _errorMessageWeight = 'กรุณากรอกน้ำหนัก';
+        valid = false;
+      } else if (double.tryParse(weight) == null || double.parse(weight) < 1) {
+        _errorMessageWeight = 'กรุณากรอกน้ำหนักให้ถูกต้อง';
+        valid = false;
+      }
+
+      if (height.isEmpty) {
+        _errorMessageHeight = 'กรุณากรอกส่วนสูง';
+        valid = false;
+      } else if (double.tryParse(height) == null || double.parse(height) < 1) {
+        _errorMessageHeight = 'กรุณากรอกส่วนสูงให้ถูกต้อง';
+        valid = false;
+      }
     });
 
-    if (_passwordController.text.trim() !=
-        _confirmPasswordController.text.trim()) {
-      setState(() {
-        _errorMessageConfirmPassword = 'รหัสผ่านไม่ตรงกัน';
-      });
-      return;
-    }
+    return valid;
+  }
+
+  Future signUp() async {
+    if (!_validateFields()) return;
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -49,6 +136,15 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       await FirebaseAuth.instance.signOut();
+
+      await FirebaseFirestore.instance.collection('users').add({
+        'first name': _firstNameController.text.trim(),
+        'last name': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'age': int.parse(_ageController.text.trim()),
+        'weight': double.parse(_weightController.text.trim()),
+        'height': double.parse(_heightController.text.trim()),
+      });
 
       if (!mounted) return;
       showDialog(
@@ -97,6 +193,35 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    IconData? prefixIcon,
+    bool obscureText = false,
+    String? errorText,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        floatingLabelStyle: const TextStyle(color: Color(0xFF1AA916)),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Color(0xFF1AA916)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Color(0xFF1AA916)),
+        ),
+        errorText: errorText,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 300),
+                const SizedBox(height: 25),
                 Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
@@ -126,85 +251,63 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Email
-                      TextFormField(
+                      _buildTextField(
                         controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          floatingLabelStyle: const TextStyle(
-                            color: Color(0xFF1AA916),
-                          ),
-                          prefixIcon: const Icon(Icons.email),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          errorText: _errorMessageEmail,
-                        ),
+                        label: 'Email',
+                        prefixIcon: Icons.email,
+                        errorText: _errorMessageEmail,
                       ),
                       const SizedBox(height: 16),
-
-                      // Password
-                      TextFormField(
+                      _buildTextField(
                         controller: _passwordController,
+                        label: 'Password',
+                        prefixIcon: Icons.lock,
                         obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          floatingLabelStyle: const TextStyle(
-                            color: Color(0xFF1AA916),
-                          ),
-                          prefixIcon: const Icon(Icons.lock),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          errorText: _errorMessagePassword,
-                        ),
+                        errorText: _errorMessagePassword,
                       ),
                       const SizedBox(height: 16),
-
-                      // Confirm Password
-                      TextFormField(
+                      _buildTextField(
                         controller: _confirmPasswordController,
+                        label: 'Confirm Password',
+                        prefixIcon: Icons.lock_outline,
                         obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          floatingLabelStyle: const TextStyle(
-                            color: Color(0xFF1AA916),
-                          ),
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF1AA916),
-                            ),
-                          ),
-                          errorText: _errorMessageConfirmPassword,
-                        ),
+                        errorText: _errorMessageConfirmPassword,
                       ),
-
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _firstNameController,
+                        label: 'ชื่อ',
+                        prefixIcon: Icons.person,
+                        errorText: _errorMessageFirstName,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _lastNameController,
+                        label: 'นามสกุล',
+                        prefixIcon: Icons.person_outline,
+                        errorText: _errorMessageLastName,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _ageController,
+                        label: 'อายุ',
+                        keyboardType: TextInputType.number,
+                        errorText: _errorMessageAge,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _weightController,
+                        label: 'น้ำหนัก (kg)',
+                        keyboardType: TextInputType.number,
+                        errorText: _errorMessageWeight,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _heightController,
+                        label: 'ส่วนสูง (cm)',
+                        keyboardType: TextInputType.number,
+                        errorText: _errorMessageHeight,
+                      ),
                       const SizedBox(height: 24),
 
                       GestureDetector(
