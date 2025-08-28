@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/auth/main_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:healthy_plan/pages/forgot_pw_page.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterPage;
@@ -80,6 +81,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      //email
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -104,6 +107,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      //password
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -129,6 +134,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      //login
                       GestureDetector(
                         onTap: signIn,
                         child: Container(
@@ -143,17 +150,51 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(
                               fontSize: 18,
                               color: Color(0xFF1AA916),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: widget.showRegisterPage,
-                        child: Text(
-                          'สมัครสมาชิก',
-                          style: TextStyle(color: Colors.purple),
-                        ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //Sign in
+                          GestureDetector(
+                            onTap: widget.showRegisterPage,
+                            child: Text(
+                              'สมัครสมาชิก',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+
+                          Text('       '),
+
+                          //Forgot Password
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return ForgotPasswordPage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'ลืมรหัสผ่าน',
+                              style: TextStyle(
+                                color: Colors.purpleAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

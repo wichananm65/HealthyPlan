@@ -13,14 +13,17 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   String? _errorMessageEmail;
   String? _errorMessagePassword;
+  String? _errorMessageConfirmPassword;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -28,7 +31,16 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _errorMessageEmail = null;
       _errorMessagePassword = null;
+      _errorMessageConfirmPassword = null;
     });
+
+    if (_passwordController.text.trim() !=
+        _confirmPasswordController.text.trim()) {
+      setState(() {
+        _errorMessageConfirmPassword = 'รหัสผ่านไม่ตรงกัน';
+      });
+      return;
+    }
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -36,10 +48,9 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text.trim(),
       );
 
-      // logout ทันที เพื่อไม่ให้ auto-login
       await FirebaseAuth.instance.signOut();
 
-      if (!mounted) return; // ตรวจสอบก่อน show dialog
+      if (!mounted) return;
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -114,6 +125,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Email
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -138,6 +151,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Password
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -162,7 +177,36 @@ class _RegisterPageState extends State<RegisterPage> {
                           errorText: _errorMessagePassword,
                         ),
                       ),
+                      const SizedBox(height: 16),
+
+                      // Confirm Password
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          floatingLabelStyle: const TextStyle(
+                            color: Color(0xFF1AA916),
+                          ),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF1AA916),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF1AA916),
+                            ),
+                          ),
+                          errorText: _errorMessageConfirmPassword,
+                        ),
+                      ),
+
                       const SizedBox(height: 24),
+
                       GestureDetector(
                         onTap: signUp,
                         child: Container(
@@ -184,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 16),
                       GestureDetector(
                         onTap: widget.showLoginPage,
-                        child: Text(
+                        child: const Text(
                           'มีบัญชีอยู่แล้ว',
                           style: TextStyle(color: Colors.purple),
                         ),
