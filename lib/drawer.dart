@@ -4,10 +4,10 @@ import 'package:healthy_plan/pages/home_page.dart';
 import 'package:healthy_plan/pages/menu_page.dart';
 import 'package:healthy_plan/pages/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:healthy_plan/services/user_service.dart';
 
 class MyDrawer extends StatelessWidget {
   MyDrawer({super.key});
-  final user = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class MyDrawer extends StatelessWidget {
                 Stack(
                   children: [
                     Text(
-                      user.email!,
+                      '${UserService().getName()}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -39,7 +39,7 @@ class MyDrawer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      user.email!,
+                      '${UserService().getName()}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -97,8 +97,9 @@ class MyDrawer extends StatelessWidget {
               'ออกจากระบบ',
               style: TextStyle(color: Colors.red),
             ),
-            onTap: () {
-              FirebaseAuth.instance.signOut();
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              await UserService().clearCache();
             },
           ),
         ],

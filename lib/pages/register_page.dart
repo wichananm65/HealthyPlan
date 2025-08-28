@@ -135,9 +135,10 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text.trim(),
       );
 
+      final uid = FirebaseAuth.instance.currentUser?.uid;
       await FirebaseAuth.instance.signOut();
 
-      await FirebaseFirestore.instance.collection('users').add({
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'first name': _firstNameController.text.trim(),
         'last name': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),

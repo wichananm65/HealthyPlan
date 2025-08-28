@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:healthy_plan/auth/main_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:healthy_plan/pages/forgot_pw_page.dart';
+import 'package:healthy_plan/services/user_service.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterPage;
@@ -31,11 +32,16 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
+      final userService = UserService();
+      await userService.loadUser();
+
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainPage()),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() {
         if (e.code == 'user-not-found' || e.code == 'invalid-email') {
           _errorMessageEmail = 'อีเมลไม่ถูกต้อง';

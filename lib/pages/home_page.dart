@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:healthy_plan/pages/summary.dart';
 import 'package:healthy_plan/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:healthy_plan/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -129,7 +130,7 @@ class FoodTable extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text(
-                  '🍳 อาหารเช้า',
+                  '🍳 อาหารเช้า ',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
