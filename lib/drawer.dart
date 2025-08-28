@@ -27,9 +27,7 @@ class MyDrawer extends StatelessWidget {
                 Stack(
                   children: [
                     Text(
-                      UserService().getName() +
-                          ' ' +
-                          UserService().getLastName(),
+                      '${UserService().getName()} ${UserService().getLastName()}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -41,9 +39,7 @@ class MyDrawer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      UserService().getName() +
-                          ' ' +
-                          UserService().getLastName(),
+                      '${UserService().getName()} ${UserService().getLastName()}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -81,7 +77,9 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const Menu()),
+                MaterialPageRoute(
+                  builder: (context) => const MyMenuPage(title: 'เมนู'),
+                ),
               );
             },
           ),
