@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/pages/bookmarks_page.dart';
 import 'package:healthy_plan/pages/home_page.dart';
-import 'package:healthy_plan/pages/menu_page.dart';
+import 'package:healthy_plan/pages/menus_page.dart';
 import 'package:healthy_plan/pages/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:healthy_plan/services/user_service.dart';
