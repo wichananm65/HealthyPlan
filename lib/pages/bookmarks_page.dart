@@ -1,24 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/drawer.dart';
-
-void main() {
-  runApp(const Bookmarks());
-}
-
-class Bookmarks extends StatelessWidget {
-  const Bookmarks({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Healthy Plan',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
-      ),
-      home: const BookmarksPage(title: 'รายการโปรด'),
-    );
-  }
-}
+import 'package:healthy_plan/services/menu_service.dart';
+import 'package:healthy_plan/services/user_service.dart';
+import 'menu_page.dart';
 
 class BookmarksPage extends StatefulWidget {
   const BookmarksPage({super.key, required this.title});
@@ -26,67 +10,155 @@ class BookmarksPage extends StatefulWidget {
   final String title;
 
   @override
-  State<BookmarksPage> createState() => _MyHomePageState();
+  State<BookmarksPage> createState() => _BookmarksPageState();
 }
 
-class _MyHomePageState extends State<BookmarksPage> {
+class _BookmarksPageState extends State<BookmarksPage> {
+  final MenuService _menuService = MenuService();
+  List<MenuModel> _allMenus = [];
+  List<MenuModel> _favouriteMenus = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await UserService().loadUser();
+    _allMenus = await _menuService.loadAllMenus();
+
+    _favouriteMenus =
+        _allMenus.where((menu) {
+          return UserService().favouriteMenus.contains(menu.id);
+        }).toList();
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _toggleFavourite(MenuModel menu) async {
+    if (UserService().favouriteMenus.contains(menu.id)) {
+      await UserService().removeFavourite(menu.id);
+    } else {
+      await UserService().addFavourite(menu.id);
+    }
+    _loadData(); // รีเฟรชรายการ favourite
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.green, title: Text(widget.title)),
-      drawer: MyDrawer(),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'ค้นหา...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 0,
-                    horizontal: 20,
-                  ),
-                ),
-                onChanged: (value) {},
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.5,
-                  ),
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.green),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(widget.title),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
+      drawer: MyDrawer(),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: Colors.green),
+              )
+              : _favouriteMenus.isEmpty
+              ? const Center(child: Text('คุณยังไม่มีรายการโปรด'))
+              : ListView.builder(
+                itemCount: _favouriteMenus.length,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  final menu = _favouriteMenus[index];
+                  final isFavourite = UserService().favouriteMenus.contains(
+                    menu.id,
+                  );
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green[200]!),
+                        ),
+                        child: const Icon(
+                          Icons.restaurant,
+                          color: Colors.green,
+                          size: 30,
+                        ),
+                      ),
+                      title: Text(
+                        menu.foodName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            menu.benefit.length > 50
+                                ? '${menu.benefit.substring(0, 50)}...'
+                                : menu.benefit,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange[50],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${menu.calories} kcal',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          isFavourite
+                              ? Icons.favorite
+                              : Icons.favorite_border_outlined,
+                          color: Colors.red,
+                          size: 25,
+                        ),
+                        onPressed: () => _toggleFavourite(menu),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MenuPage(menu: menu),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

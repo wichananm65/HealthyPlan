@@ -145,6 +145,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'age': int.parse(_ageController.text.trim()),
         'weight': double.parse(_weightController.text.trim()),
         'height': double.parse(_heightController.text.trim()),
+        'favourite': null,
       });
 
       if (!mounted) return;

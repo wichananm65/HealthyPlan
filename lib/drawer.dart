@@ -77,9 +77,7 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const MyMenuPage(title: 'เมนู'),
-                ),
+                MaterialPageRoute(builder: (context) => const MenusPage()),
               );
             },
           ),
@@ -89,7 +87,10 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const Bookmarks()),
+                MaterialPageRoute(
+                  builder:
+                      (context) => const BookmarksPage(title: 'รายการโปรด'),
+                ),
               );
             },
           ),

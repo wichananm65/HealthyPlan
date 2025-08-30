@@ -1,15 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_plan/drawer.dart';
 import 'package:healthy_plan/services/menu_service.dart';
+import 'package:healthy_plan/services/user_service.dart';
 
-class MenuPage extends StatelessWidget {
+class MenuPage extends StatefulWidget {
   final MenuModel menu;
 
   const MenuPage({super.key, required this.menu});
 
   @override
+  State<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  late bool isFavourite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavourite = UserService().favouriteMenus.contains(widget.menu.id);
+  }
+
+  void toggleFavourite() async {
+    if (isFavourite) {
+      await UserService().removeFavourite(widget.menu.id);
+    } else {
+      await UserService().addFavourite(widget.menu.id);
+    }
+    setState(() {
+      isFavourite = !isFavourite;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.green, title: Text(menu.foodName)),
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(widget.menu.foodName),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavourite ? Icons.favorite : Icons.favorite_border_outlined,
+              color: Colors.red,
+              size: 28,
+            ),
+            onPressed: toggleFavourite,
+          ),
+        ],
+      ),
+      drawer: MyDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -30,7 +73,7 @@ class MenuPage extends StatelessWidget {
             // Benefits
             _buildDetailSection(
               title: 'ประโยชน์',
-              content: menu.benefit,
+              content: widget.menu.benefit,
               icon: Icons.favorite,
             ),
             const SizedBox(height: 16),
@@ -38,7 +81,7 @@ class MenuPage extends StatelessWidget {
             // Ingredients
             _buildDetailSection(
               title: 'ส่วนผสม',
-              content: menu.ingredient,
+              content: widget.menu.ingredient,
               icon: Icons.list,
             ),
             const SizedBox(height: 16),
@@ -46,7 +89,7 @@ class MenuPage extends StatelessWidget {
             // How to cook
             _buildDetailSection(
               title: 'วิธีทำ',
-              content: menu.howTo,
+              content: widget.menu.howTo,
               icon: Icons.book,
             ),
           ],

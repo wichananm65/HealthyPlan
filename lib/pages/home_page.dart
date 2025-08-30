@@ -36,6 +36,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Healthy Plan'),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
         backgroundColor: Colors.green,
       ),
       drawer: MyDrawer(),

@@ -13,6 +13,9 @@ class UserService {
   int? _age;
   double? _weight;
   double? _height;
+  List<String> _favouriteMenus = [];
+
+  List<String> get favouriteMenus => List.unmodifiable(_favouriteMenus);
 
   Future<void> loadUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -37,6 +40,29 @@ class UserService {
           (data['weight'] != null) ? (data['weight'] as num).toDouble() : 0;
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
+
+      // โหลด favourite menu จาก firestore
+      _favouriteMenus = List<String>.from(data['favourite'] ?? []);
+    }
+  }
+
+  Future<void> addFavourite(String menuId) async {
+    if (_uid == null) return;
+    if (!_favouriteMenus.contains(menuId)) {
+      _favouriteMenus.add(menuId);
+      await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+        'favourite': _favouriteMenus,
+      });
+    }
+  }
+
+  Future<void> removeFavourite(String menuId) async {
+    if (_uid == null) return;
+    if (_favouriteMenus.contains(menuId)) {
+      _favouriteMenus.remove(menuId);
+      await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+        'favourite': _favouriteMenus,
+      });
     }
   }
 
@@ -48,6 +74,7 @@ class UserService {
     _age = null;
     _weight = null;
     _height = null;
+    _favouriteMenus.clear();
   }
 
   String getName() => _firstName ?? '';
@@ -71,6 +98,7 @@ class UserService {
           (data['weight'] != null) ? (data['weight'] as num).toDouble() : 0;
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
+      _favouriteMenus = List<String>.from(data['favourite'] ?? []);
     }
   }
 }

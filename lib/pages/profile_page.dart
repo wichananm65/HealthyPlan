@@ -40,7 +40,13 @@ class _MyHomePageState extends State<MyProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.green, title: Text(widget.title)),
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(widget.title),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+      ),
       drawer: MyDrawer(),
       body: Center(
         child: Padding(
