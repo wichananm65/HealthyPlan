@@ -178,7 +178,6 @@ class FoodTable extends StatelessWidget {
   }
 }
 
-/// Widget สำหรับ Card แสดงอาหาร
 class FoodCardList extends StatelessWidget {
   const FoodCardList({super.key, required this.foods});
 

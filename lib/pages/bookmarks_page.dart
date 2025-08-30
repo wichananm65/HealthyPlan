@@ -45,7 +45,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
     } else {
       await UserService().addFavourite(menu.id);
     }
-    _loadData(); // รีเฟรชรายการ favourite
+    _loadData();
   }
 
   @override

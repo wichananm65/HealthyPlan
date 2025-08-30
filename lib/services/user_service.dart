@@ -40,8 +40,6 @@ class UserService {
           (data['weight'] != null) ? (data['weight'] as num).toDouble() : 0;
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
-
-      // โหลด favourite menu จาก firestore
       _favouriteMenus = List<String>.from(data['favourite'] ?? []);
     }
   }
@@ -99,6 +97,46 @@ class UserService {
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
       _favouriteMenus = List<String>.from(data['favourite'] ?? []);
+    }
+  }
+
+  Future<void> updateUser({
+    String? firstName,
+    String? lastName,
+    int? age,
+    double? weight,
+    double? height,
+  }) async {
+    if (_uid == null) return;
+
+    final data = <String, dynamic>{};
+
+    if (firstName != null) {
+      _firstName = firstName;
+      data['first name'] = firstName;
+    }
+    if (lastName != null) {
+      _lastName = lastName;
+      data['last name'] = lastName;
+    }
+    if (age != null) {
+      _age = age;
+      data['age'] = age;
+    }
+    if (weight != null) {
+      _weight = weight;
+      data['weight'] = weight;
+    }
+    if (height != null) {
+      _height = height;
+      data['height'] = height;
+    }
+
+    if (data.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_uid)
+          .update(data);
     }
   }
 }

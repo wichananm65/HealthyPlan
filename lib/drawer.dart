@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthy_plan/auth/auth_page.dart';
 import 'package:healthy_plan/pages/bookmarks_page.dart';
 import 'package:healthy_plan/pages/home_page.dart';
 import 'package:healthy_plan/pages/menus_page.dart';
@@ -67,7 +68,9 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const Profile()),
+                MaterialPageRoute(
+                  builder: (context) => const MyProfilePage(title: 'โปรไฟล์'),
+                ),
               );
             },
           ),
@@ -103,6 +106,10 @@ class MyDrawer extends StatelessWidget {
             onTap: () async {
               await UserService().clearCache();
               await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => AuthPage()),
+              );
             },
           ),
         ],
