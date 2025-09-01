@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/drawer.dart';
+import 'package:healthy_plan/services/menu_service.dart'; // import MenuModel
 
 class TodaySummaryPage extends StatefulWidget {
-  final List<List<dynamic>>? breakfastFoods;
-  final List<List<dynamic>>? lunchFoods;
-  final List<List<dynamic>>? dinnerFoods;
+  final List<MenuModel> breakfastFoods;
+  final List<MenuModel> lunchFoods;
+  final List<MenuModel> dinnerFoods;
 
   const TodaySummaryPage({
     super.key,
-    this.breakfastFoods,
-    this.lunchFoods,
-    this.dinnerFoods,
+    required this.breakfastFoods,
+    required this.lunchFoods,
+    required this.dinnerFoods,
   });
 
   @override
@@ -22,21 +23,17 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
 
   double get totalCalories {
     double total = 0.0;
-    if (widget.breakfastFoods != null) {
-      total += widget.breakfastFoods!.fold(0.0, (sum, food) => sum + food[1]);
-    }
-    if (widget.lunchFoods != null) {
-      total += widget.lunchFoods!.fold(0.0, (sum, food) => sum + food[1]);
-    }
-    if (widget.dinnerFoods != null) {
-      total += widget.dinnerFoods!.fold(0.0, (sum, food) => sum + food[1]);
-    }
+    total += widget.breakfastFoods.fold(
+      0.0,
+      (sum, food) => sum + food.calories,
+    );
+    total += widget.lunchFoods.fold(0.0, (sum, food) => sum + food.calories);
+    total += widget.dinnerFoods.fold(0.0, (sum, food) => sum + food.calories);
     return total;
   }
 
-  double getMealCalories(List<List<dynamic>>? foods) {
-    if (foods == null || foods.isEmpty) return 0.0;
-    return foods.fold(0.0, (sum, food) => sum + food[1]);
+  double getMealCalories(List<MenuModel> foods) {
+    return foods.fold(0.0, (sum, food) => sum + food.calories);
   }
 
   Color _getStatusColor(double amount) {
@@ -60,16 +57,12 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
   }
 
   bool get hasAnyFood {
-    return (widget.breakfastFoods?.isNotEmpty ?? false) ||
-        (widget.lunchFoods?.isNotEmpty ?? false) ||
-        (widget.dinnerFoods?.isNotEmpty ?? false);
+    return widget.breakfastFoods.isNotEmpty ||
+        widget.lunchFoods.isNotEmpty ||
+        widget.dinnerFoods.isNotEmpty;
   }
 
-  Widget _buildMealCard(
-    String mealName,
-    String emoji,
-    List<List<dynamic>>? foods,
-  ) {
+  Widget _buildMealCard(String mealName, String emoji, List<MenuModel> foods) {
     double mealCalories = getMealCalories(foods);
 
     return Container(
@@ -113,7 +106,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
             ],
           ),
           const SizedBox(height: 12),
-          if (foods != null && foods.isNotEmpty)
+          if (foods.isNotEmpty)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children:
@@ -128,12 +121,12 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                           ),
                           Expanded(
                             child: Text(
-                              food[0],
+                              food.foodName,
                               style: const TextStyle(fontSize: 14),
                             ),
                           ),
                           Text(
-                            '${food[1]} kcal',
+                            '${food.calories} kcal',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -153,6 +146,16 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
         ],
       ),
     );
+  }
+
+  String getDailyRecommendation() {
+    if (totalCalories <= recommendedLimit * 0.7) {
+      return '✅ ยอดเยี่ยม! คุณควบคุมพลังงานได้ดีในวันนี้\n• รักษาระดับนี้ต่อไป\n• พักผ่อนให้เพียงพอ';
+    } else if (totalCalories <= recommendedLimit) {
+      return '⚠️ ปานกลาง ยังอยู่ในเกณฑ์ที่ยอมรับได้\n• หลีกเลี่ยงอาหารที่มีไขมันสูง\n• ออกกำลังกายเล็กน้อย';
+    } else {
+      return '🚨 พลังงานเกินที่แนะนำแล้ว\n• ลดมื้อเย็นหรือขนม\n• เพิ่มการเคลื่อนไหวระหว่างวัน\n• ดื่มน้ำมากขึ้น';
+    }
   }
 
   @override
@@ -205,7 +208,6 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            // ignore: deprecated_member_use
                             color: Colors.grey.withOpacity(0.3),
                             spreadRadius: 2,
                             blurRadius: 5,
@@ -267,33 +269,6 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                     ),
 
                     const SizedBox(height: 24),
-
-                    // Recommendation
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Colors.blue.shade700),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'แนะนำ: บริโภคพลังงานไม่เกิน ${recommendedLimit.toInt()} kcal/วัน',
-                              style: TextStyle(
-                                color: Colors.blue.shade700,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
                     const Text(
                       'รายละเอียดตามมื้อ',
                       style: TextStyle(
@@ -310,7 +285,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
 
                     const SizedBox(height: 24),
 
-                    // Tips
+                    // Recommendation / Tips
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -340,11 +315,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            totalCalories <= recommendedLimit * 0.7
-                                ? '✅ ยอดเยี่ยม! คุณควบคุมพลังงานได้ดีในวันนี้\n• รักษาระดับนี้ต่อไป\n• พักผ่อนให้เพียงพอ'
-                                : totalCalories <= recommendedLimit
-                                ? '⚠️ ปานกลาง ยังอยู่ในเกณฑ์ที่ยอมรับได้\n• หลีกเลี่ยงอาหารที่มีไขมันสูง\n• ออกกำลังกายเล็กน้อย'
-                                : '🚨 พลังงานเกินที่แนะนำแล้ว\n• ลดมื้อเย็นหรือขนม\n• เพิ่มการเคลื่อนไหวระหว่างวัน\n• ดื่มน้ำมากขึ้น',
+                            getDailyRecommendation(),
                             style: const TextStyle(fontSize: 14, height: 1.5),
                           ),
                         ],

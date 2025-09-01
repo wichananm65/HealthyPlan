@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/pages/summary.dart';
 import 'package:healthy_plan/drawer.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:healthy_plan/services/user_service.dart';
+import 'package:healthy_plan/services/menu_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,92 +12,118 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  final userService = UserService();
+  final menuService = MenuService();
 
-  final List<List<dynamic>> breakfastFoods = const [
-    ['ข้าวต้มหมู', 85],
-    ['กล้วยหอม', 89],
-    ['นมสด', 61],
-  ];
+  List<MenuModel> breakfastMenus = [];
+  List<MenuModel> lunchMenus = [];
+  List<MenuModel> dinnerMenus = [];
 
-  final List<List<dynamic>> lunchFoods = const [
-    ['ข้าวผัดกุ้ง', 163],
-    ['ส้มตำ', 56],
-    ['น้ำมะพร้าว', 19],
-  ];
+  bool isLoading = true;
 
-  final List<List<dynamic>> dinnerFoods = const [
-    ['แกงเขียวหวานไก่', 135],
-    ['ข้าวสวย', 130],
-    ['มะม่วงสุก', 60],
-  ];
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    setState(() => isLoading = true);
+
+    await userService.loadUser();
+    await menuService.loadAllMenus();
+
+    // แปลง menuId -> MenuModel
+    breakfastMenus =
+        userService.breakfast
+            .map((id) => menuService.getMenuById(id))
+            .whereType<MenuModel>()
+            .toList();
+
+    lunchMenus =
+        userService.lunch
+            .map((id) => menuService.getMenuById(id))
+            .whereType<MenuModel>()
+            .toList();
+
+    dinnerMenus =
+        userService.dinner
+            .map((id) => menuService.getMenuById(id))
+            .whereType<MenuModel>()
+            .toList();
+
+    setState(() => isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Healthy Plan'),
+        title: const Text('Healthy Plan'),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         backgroundColor: Colors.green,
       ),
       drawer: MyDrawer(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            FoodTable(
-              breakfastFoods: breakfastFoods,
-              lunchFoods: lunchFoods,
-              dinnerFoods: dinnerFoods,
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1AA916),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  elevation: 3,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => TodaySummaryPage(
-                            breakfastFoods: breakfastFoods,
-                            lunchFoods: lunchFoods,
-                            dinnerFoods: dinnerFoods,
-                          ),
-                    ),
-                  );
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
                   children: [
-                    Icon(Icons.analytics, size: 24),
-                    SizedBox(width: 8),
-                    Text(
-                      'สรุปแผนวันนี้',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 40),
+                    FoodTable(
+                      breakfastFoods: breakfastMenus,
+                      lunchFoods: lunchMenus,
+                      dinnerFoods: dinnerMenus,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1AA916),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          elevation: 3,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => TodaySummaryPage(
+                                    breakfastFoods: breakfastMenus,
+                                    lunchFoods: lunchMenus,
+                                    dinnerFoods: dinnerMenus,
+                                  ),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.analytics, size: 24),
+                            SizedBox(width: 8),
+                            Text(
+                              'สรุปแผนวันนี้',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -110,9 +137,9 @@ class FoodTable extends StatelessWidget {
     required this.dinnerFoods,
   });
 
-  final List<List<dynamic>> breakfastFoods;
-  final List<List<dynamic>> lunchFoods;
-  final List<List<dynamic>> dinnerFoods;
+  final List<MenuModel> breakfastFoods;
+  final List<MenuModel> lunchFoods;
+  final List<MenuModel> dinnerFoods;
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +195,7 @@ class FoodTable extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: FoodCardList(foods: dinnerFoods),
+                child: FoodCardList(foods: dinnerFoods), // ชื่อถูกต้อง
               ),
             ],
           ),
@@ -181,7 +208,7 @@ class FoodTable extends StatelessWidget {
 class FoodCardList extends StatelessWidget {
   const FoodCardList({super.key, required this.foods});
 
-  final List<List<dynamic>> foods;
+  final List<MenuModel> foods;
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +235,7 @@ class FoodCardList extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      food[0],
+                      food.foodName,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -226,7 +253,7 @@ class FoodCardList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${food[1]} kcal',
+                      '${food.calories} kcal',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,

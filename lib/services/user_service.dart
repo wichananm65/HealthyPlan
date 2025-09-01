@@ -14,8 +14,14 @@ class UserService {
   double? _weight;
   double? _height;
   List<String> _favouriteMenus = [];
+  List<String> _breakfast = [];
+  List<String> _lunch = [];
+  List<String> _dinner = [];
 
   List<String> get favouriteMenus => List.unmodifiable(_favouriteMenus);
+  List<String> get breakfast => List.unmodifiable(_breakfast);
+  List<String> get lunch => List.unmodifiable(_lunch);
+  List<String> get dinner => List.unmodifiable(_dinner);
 
   Future<void> loadUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -41,6 +47,9 @@ class UserService {
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
       _favouriteMenus = List<String>.from(data['favourite'] ?? []);
+      _breakfast = List<String>.from(data['breakfast'] ?? []);
+      _lunch = List<String>.from(data['lunch'] ?? []);
+      _dinner = List<String>.from(data['dinner'] ?? []);
     }
   }
 
@@ -64,6 +73,96 @@ class UserService {
     }
   }
 
+  Future<void> addToMeal(String mealType, String menuId) async {
+    if (_uid == null) return;
+
+    List<String> currentMeal;
+    switch (mealType) {
+      case 'breakfast':
+        currentMeal = _breakfast;
+        break;
+      case 'lunch':
+        currentMeal = _lunch;
+        break;
+      case 'dinner':
+        currentMeal = _dinner;
+        break;
+      default:
+        throw ArgumentError('Invalid meal type: $mealType');
+    }
+
+    if (!currentMeal.contains(menuId)) {
+      currentMeal.add(menuId);
+      await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+        mealType: currentMeal,
+      });
+    }
+  }
+
+  Future<void> removeFromMeal(String mealType, String menuId) async {
+    if (_uid == null) return;
+
+    List<String> currentMeal;
+    switch (mealType) {
+      case 'breakfast':
+        currentMeal = _breakfast;
+        break;
+      case 'lunch':
+        currentMeal = _lunch;
+        break;
+      case 'dinner':
+        currentMeal = _dinner;
+        break;
+      default:
+        throw ArgumentError('Invalid meal type: $mealType');
+    }
+
+    if (currentMeal.contains(menuId)) {
+      currentMeal.remove(menuId);
+      await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+        mealType: currentMeal,
+      });
+    }
+  }
+
+  Future<void> clearMeal(String mealType) async {
+    if (_uid == null) return;
+
+    List<String> currentMeal;
+    switch (mealType) {
+      case 'breakfast':
+        currentMeal = _breakfast;
+        break;
+      case 'lunch':
+        currentMeal = _lunch;
+        break;
+      case 'dinner':
+        currentMeal = _dinner;
+        break;
+      default:
+        throw ArgumentError('Invalid meal type: $mealType');
+    }
+
+    currentMeal.clear();
+    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+      mealType: currentMeal,
+    });
+  }
+
+  Future<void> clearAllMeals() async {
+    if (_uid == null) return;
+
+    _breakfast.clear();
+    _lunch.clear();
+    _dinner.clear();
+
+    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+      'breakfast': _breakfast,
+      'lunch': _lunch,
+      'dinner': _dinner,
+    });
+  }
+
   Future<void> clearCache() async {
     await UserDB().clearUid();
     _uid = null;
@@ -73,6 +172,9 @@ class UserService {
     _weight = null;
     _height = null;
     _favouriteMenus.clear();
+    _breakfast.clear();
+    _lunch.clear();
+    _dinner.clear();
   }
 
   String getName() => _firstName ?? '';
@@ -97,6 +199,9 @@ class UserService {
       _height =
           (data['height'] != null) ? (data['height'] as num).toDouble() : 0;
       _favouriteMenus = List<String>.from(data['favourite'] ?? []);
+      _breakfast = List<String>.from(data['breakfast'] ?? []);
+      _lunch = List<String>.from(data['lunch'] ?? []);
+      _dinner = List<String>.from(data['dinner'] ?? []);
     }
   }
 
