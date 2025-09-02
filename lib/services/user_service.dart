@@ -91,12 +91,11 @@ class UserService {
         throw ArgumentError('Invalid meal type: $mealType');
     }
 
-    if (!currentMeal.contains(menuId)) {
-      currentMeal.add(menuId);
-      await FirebaseFirestore.instance.collection('users').doc(_uid).update({
-        mealType: currentMeal,
-      });
-    }
+    // ลบการตรวจสอบการซ้ำกัน - อนุญาตให้เพิ่มได้ทุกครั้ง
+    currentMeal.add(menuId);
+    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+      mealType: currentMeal,
+    });
   }
 
   Future<void> removeFromMeal(String mealType, String menuId) async {
@@ -117,6 +116,7 @@ class UserService {
         throw ArgumentError('Invalid meal type: $mealType');
     }
 
+    // ลบเฉพาะรายการแรกที่พบ (ในกรณีที่มีการซ้ำ)
     if (currentMeal.contains(menuId)) {
       currentMeal.remove(menuId);
       await FirebaseFirestore.instance.collection('users').doc(_uid).update({

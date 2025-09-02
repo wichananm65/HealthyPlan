@@ -4,6 +4,7 @@ class MenuModel {
   final String id;
   final String benefit;
   final int calories;
+  final double sugarContent;
   final String foodName;
   final String howTo;
   final String ingredient;
@@ -13,6 +14,7 @@ class MenuModel {
     required this.id,
     required this.benefit,
     required this.calories,
+    required this.sugarContent,
     required this.foodName,
     required this.howTo,
     required this.ingredient,
@@ -45,10 +47,20 @@ class MenuModel {
       return 0;
     }
 
+    double convertToDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
+      return 0.0;
+    }
+
     return MenuModel(
       id: doc.id,
       benefit: data['benefit']?.toString() ?? '',
       calories: convertToInt(data['calories']),
+      sugarContent: convertToDouble(data['sugarContent']), // เพิ่มบรรทัดนี้
       foodName: data['foodName']?.toString() ?? '',
       howTo: convertToString(data['howTo']),
       ingredient: convertToString(data['ingredient']),
@@ -135,6 +147,15 @@ class MenuService {
     }).toList();
   }
 
+  // เพิ่มฟังก์ชันกรองตามระดับน้ำตาล
+  List<MenuModel> filterMenusBySugar({double? minSugar, double? maxSugar}) {
+    return _allMenus.where((menu) {
+      bool matchMin = minSugar == null || menu.sugarContent >= minSugar;
+      bool matchMax = maxSugar == null || menu.sugarContent <= maxSugar;
+      return matchMin && matchMax;
+    }).toList();
+  }
+
   MenuModel? getMenuById(String id) {
     try {
       return _allMenus.firstWhere((menu) => menu.id == id);
@@ -147,6 +168,7 @@ class MenuService {
     required String foodName,
     required String benefit,
     required int calories,
+    required double sugarContent, // เพิ่ม parameter
     required String howTo,
     required List<String> ingredients,
     String? picture,
@@ -156,6 +178,7 @@ class MenuService {
         'foodName': foodName,
         'benefit': benefit,
         'calories': calories,
+        'sugarContent': sugarContent,
         'howTo': howTo,
         'ingredient': ingredients,
         'picture': picture,

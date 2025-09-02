@@ -223,33 +223,105 @@ class _MenuPageState extends State<MenuPage> {
             ),
             const SizedBox(height: 20),
 
-            // Calories display
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.orange[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange[200]!),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.local_fire_department,
-                    color: Colors.orange[700],
-                    size: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${widget.menu.calories} kcal',
-                    style: TextStyle(
-                      color: Colors.orange[700],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+            // Nutrition Info Display (Updated)
+            Row(
+              children: [
+                // Calories display
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.orange[200]!),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.local_fire_department,
+                              color: Colors.orange[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'พลังงาน',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.menu.calories} kcal',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // Sugar display
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue[200]!),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.water_drop,
+                              color: Colors.blue[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'น้ำตาล',
+                              style: TextStyle(
+                                color: Colors.blue[700],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.menu.sugarContent.toStringAsFixed(1)} g',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
