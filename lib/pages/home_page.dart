@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/pages/summary.dart';
 import 'package:healthy_plan/drawer.dart';
+import 'package:healthy_plan/services/auto_plan_service.dart';
 import 'package:healthy_plan/services/user_service.dart';
 import 'package:healthy_plan/services/menu_service.dart';
 
@@ -33,19 +34,16 @@ class _HomePageState extends State<HomePage> {
     await userService.loadUser();
     await menuService.loadAllMenus();
 
-    // แปลง menuId -> MenuModel
     breakfastMenus =
         userService.breakfast
             .map((id) => menuService.getMenuById(id))
             .whereType<MenuModel>()
             .toList();
-
     lunchMenus =
         userService.lunch
             .map((id) => menuService.getMenuById(id))
             .whereType<MenuModel>()
             .toList();
-
     dinnerMenus =
         userService.dinner
             .map((id) => menuService.getMenuById(id))
@@ -53,6 +51,45 @@ class _HomePageState extends State<HomePage> {
             .toList();
 
     setState(() => isLoading = false);
+  }
+
+  Future<void> _autoPlan() async {
+    setState(() => isLoading = true);
+
+    await AutoPlanService.generatePlanAndSave();
+    await loadData();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            content: const Text(
+              'จัดแผนอัตโนมัติเรียบร้อยแล้ว',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -66,70 +103,94 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.green,
       ),
       drawer: MyDrawer(),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 40),
-                    FoodTable(
-                      breakfastFoods: breakfastMenus,
-                      lunchFoods: lunchMenus,
-                      dinnerFoods: dinnerMenus,
-                      onRefresh: loadData,
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1AA916),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          elevation: 3,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            FoodTable(
+              breakfastFoods: breakfastMenus,
+              lunchFoods: lunchMenus,
+              dinnerFoods: dinnerMenus,
+              onRefresh: loadData,
+              isLoading: isLoading,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.yellow.shade700,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => TodaySummaryPage(
-                                    breakfastFoods: breakfastMenus,
-                                    lunchFoods: lunchMenus,
-                                    dinnerFoods: dinnerMenus,
-                                  ),
-                            ),
-                          );
-                        },
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.analytics, size: 24),
-                            SizedBox(width: 8),
-                            Text(
-                              'สรุปแผนวันนี้',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        elevation: 2,
+                      ),
+                      icon: const Icon(
+                        Icons.auto_fix_high,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        'วางแผนอัตโนมัติ',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
+                      onPressed: _autoPlan,
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade700,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        elevation: 2,
+                      ),
+                      icon: const Icon(Icons.analytics, color: Colors.white),
+                      label: const Text(
+                        'สรุปแผนวันนี้',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => TodaySummaryPage(
+                                  breakfastFoods: breakfastMenus,
+                                  lunchFoods: lunchMenus,
+                                  dinnerFoods: dinnerMenus,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-/// Table ของอาหาร
 class FoodTable extends StatelessWidget {
   const FoodTable({
     super.key,
@@ -137,15 +198,21 @@ class FoodTable extends StatelessWidget {
     required this.lunchFoods,
     required this.dinnerFoods,
     required this.onRefresh,
+    required this.isLoading,
   });
 
   final List<MenuModel> breakfastFoods;
   final List<MenuModel> lunchFoods;
   final List<MenuModel> dinnerFoods;
   final VoidCallback onRefresh;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(width: 3, color: Colors.lightGreen),
@@ -229,7 +296,7 @@ class FoodCardList extends StatefulWidget {
   });
 
   final List<MenuModel> foods;
-  final String mealType; // 'breakfast', 'lunch', หรือ 'dinner'
+  final String mealType;
   final VoidCallback onRefresh;
 
   @override
@@ -241,7 +308,6 @@ class _FoodCardListState extends State<FoodCardList> {
     try {
       await UserService().removeFromMeal(widget.mealType, food.id);
 
-      // แสดง Dialog ยืนยันว่าลบเสร็จ
       if (mounted) {
         showDialog(
           context: context,
@@ -258,7 +324,7 @@ class _FoodCardListState extends State<FoodCardList> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // ปิด dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text('ตกลง'),
                 ),
@@ -267,7 +333,6 @@ class _FoodCardListState extends State<FoodCardList> {
           },
         );
 
-        // รีเฟรชข้อมูลหลังจากปิด dialog
         widget.onRefresh();
       }
     } catch (e) {
@@ -409,7 +474,6 @@ class _FoodCardListState extends State<FoodCardList> {
                       ),
                     ],
                   ),
-                  // ปุ่มลบที่มุมขวาบน (minimal design)
                   Positioned(
                     top: 2,
                     right: 2,

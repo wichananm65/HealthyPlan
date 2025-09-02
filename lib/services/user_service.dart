@@ -10,6 +10,7 @@ class UserService {
   String? _uid;
   String? _firstName;
   String? _lastName;
+  String? _gender;
   int? _age;
   double? _weight;
   double? _height;
@@ -22,6 +23,7 @@ class UserService {
   List<String> get breakfast => List.unmodifiable(_breakfast);
   List<String> get lunch => List.unmodifiable(_lunch);
   List<String> get dinner => List.unmodifiable(_dinner);
+  String get gender => _gender ?? '';
 
   Future<void> loadUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -41,6 +43,7 @@ class UserService {
       final data = doc.data()!;
       _firstName = data['first name'] ?? '';
       _lastName = data['last name'] ?? '';
+      _gender = data['gender'] ?? '';
       _age = data['age'] ?? 0;
       _weight =
           (data['weight'] != null) ? (data['weight'] as num).toDouble() : 0;
@@ -91,7 +94,6 @@ class UserService {
         throw ArgumentError('Invalid meal type: $mealType');
     }
 
-    // ลบการตรวจสอบการซ้ำกัน - อนุญาตให้เพิ่มได้ทุกครั้ง
     currentMeal.add(menuId);
     await FirebaseFirestore.instance.collection('users').doc(_uid).update({
       mealType: currentMeal,
@@ -116,7 +118,6 @@ class UserService {
         throw ArgumentError('Invalid meal type: $mealType');
     }
 
-    // ลบเฉพาะรายการแรกที่พบ (ในกรณีที่มีการซ้ำ)
     if (currentMeal.contains(menuId)) {
       currentMeal.remove(menuId);
       await FirebaseFirestore.instance.collection('users').doc(_uid).update({
@@ -168,6 +169,7 @@ class UserService {
     _uid = null;
     _firstName = null;
     _lastName = null;
+    _gender = null;
     _age = null;
     _weight = null;
     _height = null;
@@ -179,6 +181,7 @@ class UserService {
 
   String getName() => _firstName ?? '';
   String getLastName() => _lastName ?? '';
+  String getGender() => _gender ?? '';
   int getAge() => _age ?? 0;
   double getWeight() => _weight ?? 0;
   double getHeight() => _height ?? 0;
@@ -193,6 +196,7 @@ class UserService {
       final data = doc.data()!;
       _firstName = data['first name'] ?? '';
       _lastName = data['last name'] ?? '';
+      _gender = data['gender'] ?? '';
       _age = data['age'] ?? 0;
       _weight =
           (data['weight'] != null) ? (data['weight'] as num).toDouble() : 0;
@@ -208,6 +212,7 @@ class UserService {
   Future<void> updateUser({
     String? firstName,
     String? lastName,
+    String? gender,
     int? age,
     double? weight,
     double? height,
@@ -223,6 +228,10 @@ class UserService {
     if (lastName != null) {
       _lastName = lastName;
       data['last name'] = lastName;
+    }
+    if (gender != null) {
+      _gender = gender;
+      data['gender'] = gender;
     }
     if (age != null) {
       _age = age;

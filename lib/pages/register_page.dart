@@ -29,6 +29,9 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _errorMessageAge;
   String? _errorMessageWeight;
   String? _errorMessageHeight;
+  String? _errorMessageGender;
+
+  String? _selectedGender;
 
   @override
   void dispose() {
@@ -55,6 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _errorMessageAge = null;
       _errorMessageWeight = null;
       _errorMessageHeight = null;
+      _errorMessageGender = null;
 
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
@@ -121,6 +125,11 @@ class _RegisterPageState extends State<RegisterPage> {
         _errorMessageHeight = 'กรุณากรอกส่วนสูงให้ถูกต้อง';
         valid = false;
       }
+
+      if (_selectedGender == null) {
+        _errorMessageGender = 'กรุณาเลือกเพศ';
+        valid = false;
+      }
     });
 
     return valid;
@@ -145,6 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'age': int.parse(_ageController.text.trim()),
         'weight': double.parse(_weightController.text.trim()),
         'height': double.parse(_heightController.text.trim()),
+        'gender': _selectedGender,
         'favourite': null,
       });
 
@@ -252,7 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       _buildTextField(
                         controller: _emailController,
                         label: 'Email',
@@ -310,8 +319,39 @@ class _RegisterPageState extends State<RegisterPage> {
                         keyboardType: TextInputType.number,
                         errorText: _errorMessageHeight,
                       ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: InputDecoration(
+                          labelText: 'เพศ',
+                          floatingLabelStyle: const TextStyle(
+                            color: Color(0xFF1AA916),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF1AA916),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF1AA916),
+                            ),
+                          ),
+                          errorText: _errorMessageGender,
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'ชาย', child: Text('ชาย')),
+                          DropdownMenuItem(value: 'หญิง', child: Text('หญิง')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedGender = value;
+                          });
+                        },
+                      ),
                       const SizedBox(height: 24),
-
                       GestureDetector(
                         onTap: signUp,
                         child: Container(

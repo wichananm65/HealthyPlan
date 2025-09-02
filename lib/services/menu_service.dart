@@ -60,7 +60,7 @@ class MenuModel {
       id: doc.id,
       benefit: data['benefit']?.toString() ?? '',
       calories: convertToInt(data['calories']),
-      sugarContent: convertToDouble(data['sugarContent']), // เพิ่มบรรทัดนี้
+      sugarContent: convertToDouble(data['sugarContent']),
       foodName: data['foodName']?.toString() ?? '',
       howTo: convertToString(data['howTo']),
       ingredient: convertToString(data['ingredient']),
@@ -168,7 +168,7 @@ class MenuService {
     required String foodName,
     required String benefit,
     required int calories,
-    required double sugarContent, // เพิ่ม parameter
+    required double sugarContent,
     required String howTo,
     required List<String> ingredients,
     String? picture,

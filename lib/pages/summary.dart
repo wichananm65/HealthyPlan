@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/drawer.dart';
 import 'package:healthy_plan/services/menu_service.dart';
+import 'package:healthy_plan/services/user_service.dart';
 
 class TodaySummaryPage extends StatefulWidget {
   final List<MenuModel> breakfastFoods;
@@ -19,9 +20,7 @@ class TodaySummaryPage extends StatefulWidget {
 }
 
 class _TodaySummaryPageState extends State<TodaySummaryPage> {
-  final double recommendedCaloriesLimit = 2000.0;
-  final double recommendedSugarLimit =
-      50.0; // แนะนำไม่เกิน 50g ต่อวัน สำหรับผู้ป่วยเบาหวาน
+  final double recommendedSugarLimit = 50.0;
 
   double get totalCalories {
     double total = 0.0;
@@ -59,44 +58,73 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
     return foods.fold(0.0, (sum, food) => sum + food.sugarContent);
   }
 
-  Color _getCaloriesStatusColor(double amount) {
-    if (amount <= recommendedCaloriesLimit * 0.7) {
-      return Colors.green;
-    } else if (amount <= recommendedCaloriesLimit) {
-      return Colors.orange;
+  double get bmi {
+    final height = UserService().getHeight() / 100;
+    final weight = UserService().getWeight();
+    if (height <= 0) return 0;
+    return weight / (height * height);
+  }
+
+  Color _getBmiStatusColor(double bmiValue) {
+    if (bmiValue < 18.5) return Colors.orange;
+    if (bmiValue < 25) return Colors.green;
+    if (bmiValue < 30) return Colors.orange;
+    return Colors.red;
+  }
+
+  String _getBmiStatusText(double bmiValue) {
+    if (bmiValue < 18.5) return 'น้ำหนักต่ำ';
+    if (bmiValue < 25) return 'ปกติ';
+    if (bmiValue < 30) return 'น้ำหนักเกิน';
+    return 'อ้วนมาก';
+  }
+
+  double getRecommendedCalories() {
+    final age = UserService().getAge();
+    final bmiValue = bmi;
+
+    if (age <= 30) {
+      if (bmiValue < 18.5) return 2200;
+      if (bmiValue < 25) return 2000;
+      if (bmiValue < 30) return 1800;
+      return 1600;
+    } else if (age <= 50) {
+      if (bmiValue < 18.5) return 2000;
+      if (bmiValue < 25) return 1800;
+      if (bmiValue < 30) return 1600;
+      return 1400;
     } else {
-      return Colors.red;
+      if (bmiValue < 18.5) return 1800;
+      if (bmiValue < 25) return 1600;
+      if (bmiValue < 30) return 1400;
+      return 1200;
     }
+  }
+
+  Color _getCaloriesStatusColor(double amount) {
+    final recommendedCalories = getRecommendedCalories();
+    if (amount <= recommendedCalories * 0.7) return Colors.green;
+    if (amount <= recommendedCalories) return Colors.orange;
+    return Colors.red;
   }
 
   Color _getSugarStatusColor(double amount) {
-    if (amount <= recommendedSugarLimit * 0.6) {
-      return Colors.green;
-    } else if (amount <= recommendedSugarLimit) {
-      return Colors.orange;
-    } else {
-      return Colors.red;
-    }
+    if (amount <= recommendedSugarLimit * 0.6) return Colors.green;
+    if (amount <= recommendedSugarLimit) return Colors.orange;
+    return Colors.red;
   }
 
   String _getCaloriesStatusText(double amount) {
-    if (amount <= recommendedCaloriesLimit * 0.7) {
-      return 'ดี';
-    } else if (amount <= recommendedCaloriesLimit) {
-      return 'ปานกลาง';
-    } else {
-      return 'เกิน';
-    }
+    final recommendedCalories = getRecommendedCalories();
+    if (amount <= recommendedCalories * 0.7) return 'ดี';
+    if (amount <= recommendedCalories) return 'ปานกลาง';
+    return 'เกิน';
   }
 
   String _getSugarStatusText(double amount) {
-    if (amount <= recommendedSugarLimit * 0.6) {
-      return 'ปลอดภัย';
-    } else if (amount <= recommendedSugarLimit) {
-      return 'ระวัง';
-    } else {
-      return 'อันตราย';
-    }
+    if (amount <= recommendedSugarLimit * 0.6) return 'ปลอดภัย';
+    if (amount <= recommendedSugarLimit) return 'ระวัง';
+    return 'อันตราย';
   }
 
   bool get hasAnyFood {
@@ -235,27 +263,27 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
   String getDailyRecommendation() {
     String caloriesStatus = _getCaloriesStatusText(totalCalories);
     String sugarStatus = _getSugarStatusText(totalSugar);
+    double userBmi = bmi;
+
+    String bmiAdvice = '';
+    if (userBmi < 18.5) {
+      bmiAdvice = '💡 BMI ต่ำกว่าปกติ ควรเพิ่มพลังงานและโปรตีน';
+    } else if (userBmi < 25) {
+      bmiAdvice = '💡 BMI อยู่ในเกณฑ์ปกติ รักษาระดับพลังงานให้เหมาะสม';
+    } else if (userBmi < 30) {
+      bmiAdvice = '💡 BMI สูงกว่าปกติ ลดอาหารหวาน/แป้ง';
+    } else {
+      bmiAdvice = '💡 BMI สูงมาก ควรควบคุมน้ำตาลและไขมันสูง';
+    }
 
     if (sugarStatus == 'อันตราย') {
-      return '🚨 ระดับน้ำตาลเกินขีดจำกัดมาก - อันตรายสำหรับผู้ป่วยเบาหวาน!\n'
-          '• หลีกเลี่ยงอาหารหวานและผลไม้หวานที่เหลือในวันนี้\n'
-          '• ดื่มน้ำเปล่ามากๆ และออกกำลังกายเบาๆ\n'
-          '• ตรวจวัดระดับน้ำตาลในเลือดบ่อยขึ้น';
+      return '🚨 ระดับน้ำตาลเกินขีดจำกัด!\n$bmiAdvice';
     } else if (sugarStatus == 'ระวัง') {
-      return '⚠️ ระดับน้ำตาลเข้าใกล้ขีดจำกัด\n'
-          '• ควบคุมอาหารหวานในมื้อต่อไปอย่างเข้มงวด\n'
-          '• เลือกอาหารที่มีน้ำตาลต่ำ\n'
-          '• เพิ่มการออกกำลังกายเบาๆ';
+      return '⚠️ ระดับน้ำตาลเข้าใกล้ขีดจำกัด\n$bmiAdvice';
     } else if (caloriesStatus == 'เกิน') {
-      return '⚠️ พลังงานเกินแนะนำ แต่ระดับน้ำตาลยังดี\n'
-          '• ลดมื้อเย็นหรือขนม\n'
-          '• เลือกอาหารโปรตีนและผักใบเขียว\n'
-          '• เพิ่มกิจกรรมเผาผลาญพลังงาน';
+      return '⚠️ พลังงานเกินแนะนำ\n$bmiAdvice';
     } else {
-      return '✅ ดีเยี่ยม! ทั้งพลังงานและระดับน้ำตาลอยู่ในเกณฑ์ที่เหมาะสม\n'
-          '• รักษาระดับนี้ต่อไป\n'
-          '• ดื่มน้ำเปล่าเพียงพอ\n'
-          '• พักผ่อนให้เพียงพอ';
+      return '✅ ดีเยี่ยม! ทั้งพลังงานและน้ำตาลอยู่ในเกณฑ์\n$bmiAdvice';
     }
   }
 
@@ -293,158 +321,39 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Summary Cards Row
                     Row(
                       children: [
-                        // Calories Summary
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.orange.shade100,
-                                  Colors.orange.shade50,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.local_fire_department,
-                                  size: 30,
-                                  color: Colors.orange,
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'พลังงานรวม',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  '${totalCalories.toStringAsFixed(0)} kcal',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: _getCaloriesStatusColor(
-                                      totalCalories,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'สถานะ: ${_getCaloriesStatusText(totalCalories)}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: _getCaloriesStatusColor(
-                                      totalCalories,
-                                    ),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                LinearProgressIndicator(
-                                  value: (totalCalories /
-                                          recommendedCaloriesLimit)
-                                      .clamp(0.0, 1.0),
-                                  backgroundColor: Colors.grey.shade200,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _getCaloriesStatusColor(totalCalories),
-                                  ),
-                                  minHeight: 6,
-                                ),
-                              ],
-                            ),
+                          child: _buildSummaryCard(
+                            'พลังงานรวม',
+                            totalCalories,
+                            _getCaloriesStatusText(totalCalories),
+                            _getCaloriesStatusColor(totalCalories),
+                            Icons.local_fire_department,
                           ),
                         ),
-
                         const SizedBox(width: 12),
-
-                        // Sugar Summary
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.blue.shade100,
-                                  Colors.blue.shade50,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.water_drop,
-                                  size: 30,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'น้ำตาลรวม',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  '${totalSugar.toStringAsFixed(1)} g',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: _getSugarStatusColor(totalSugar),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'สถานะ: ${_getSugarStatusText(totalSugar)}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: _getSugarStatusColor(totalSugar),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                LinearProgressIndicator(
-                                  value: (totalSugar / recommendedSugarLimit)
-                                      .clamp(0.0, 1.0),
-                                  backgroundColor: Colors.grey.shade200,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _getSugarStatusColor(totalSugar),
-                                  ),
-                                  minHeight: 6,
-                                ),
-                              ],
-                            ),
+                          child: _buildSummaryCard(
+                            'น้ำตาลรวม',
+                            totalSugar,
+                            _getSugarStatusText(totalSugar),
+                            _getSugarStatusColor(totalSugar),
+                            Icons.water_drop,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildSummaryCard(
+                            'BMI',
+                            bmi,
+                            _getBmiStatusText(bmi),
+                            _getBmiStatusColor(bmi),
+                            Icons.monitor_weight,
                           ),
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 24),
                     const Text(
                       'รายละเอียดตามมื้อ',
@@ -455,14 +364,10 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     _buildMealCard('อาหารเช้า', '🍳', widget.breakfastFoods),
                     _buildMealCard('อาหารกลางวัน', '🍛', widget.lunchFoods),
                     _buildMealCard('อาหารเย็น', '🍲', widget.dinnerFoods),
-
                     const SizedBox(height: 24),
-
-                    // Recommendation / Tips
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -477,7 +382,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                             children: [
                               Icon(
                                 Icons.health_and_safety,
-                                color: Colors.green.shade700,
+                                color: Colors.green.shade400,
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -485,7 +390,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade700,
+                                  color: Colors.green.shade400,
                                 ),
                               ),
                             ],
@@ -498,48 +403,60 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-
-                    // Additional info for diabetics
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.info, color: Colors.blue.shade700),
-                              const SizedBox(width: 8),
-                              Text(
-                                'ข้อมูลสำคัญ',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '• แนะนำพลังงานต่อวัน: ${recommendedCaloriesLimit.toStringAsFixed(0)} kcal\n'
-                            '• แนะนำน้ำตาลต่อวัน: ไม่เกิน ${recommendedSugarLimit.toStringAsFixed(0)} g\n'
-                            '• ตรวจระดับน้ำตาลในเลือดก่อนและหลังอาหาร\n'
-                            '• ออกกำลังกายสม่ำเสมอ 30 นาทีต่อวัน',
-                            style: const TextStyle(fontSize: 14, height: 1.5),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
+    );
+  }
+
+  Widget _buildSummaryCard(
+    String title,
+    double value,
+    String statusText,
+    Color statusColor,
+    IconData icon,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [statusColor.withOpacity(0.2), statusColor.withOpacity(0.1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 30, color: statusColor),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: statusColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            '${value.toStringAsFixed(0)}',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: statusColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'สถานะ: $statusText',
+            style: TextStyle(
+              fontSize: 14,
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
