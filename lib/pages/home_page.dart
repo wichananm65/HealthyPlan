@@ -54,9 +54,118 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _autoPlan() async {
+    _showPlanSelectionDialog();
+  }
+
+  void _showPlanSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'เลือกประเภทแผนอาหาร',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'เลือกแผนอาหารที่เหมาะสมกับเป้าหมายของคุณ',
+                style: TextStyle(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              _buildPlanOption(
+                context,
+                PlanType.sugarControl,
+                '🩺 แผนควบคุมน้ำตาล',
+                'เหมาะสำหรับผู้ป่วยเบาหวานหรือต้องการควบคุมระดับน้ำตาล',
+                Colors.blue,
+              ),
+              const SizedBox(height: 12),
+              _buildPlanOption(
+                context,
+                PlanType.weightLoss,
+                '⚖️ แผนลดความอ้วน',
+                'เหมาะสำหรับผู้ที่ต้องการลดน้ำหนักอย่างปลอดภัย',
+                Colors.orange,
+              ),
+              const SizedBox(height: 12),
+              _buildPlanOption(
+                context,
+                PlanType.muscleBuild,
+                '💪 แผนเพิ่มกล้ามเนื้อ',
+                'เหมาะสำหรับผู้ที่ออกกำลังกายและต้องการเพิ่มกล้ามเนื้อ',
+                Colors.green,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('ยกเลิก', style: TextStyle(color: Colors.grey)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPlanOption(
+    BuildContext context,
+    PlanType planType,
+    String planName,
+    String description,
+    Color color,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color.withOpacity(0.1),
+          foregroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: color.withOpacity(0.3)),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          elevation: 0,
+        ),
+        onPressed: () async {
+          Navigator.of(context).pop();
+          await _executePlan(planType);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              planName,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(fontSize: 12, color: color.withOpacity(0.8)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _executePlan(PlanType planType) async {
     setState(() => isLoading = true);
 
-    await AutoPlanService.generatePlanAndSave();
+    await AutoPlanService.generatePlanAndSave(planType);
     await loadData();
 
     if (!mounted) return;
@@ -69,17 +178,33 @@ class _HomePageState extends State<HomePage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            content: const Text(
-              'จัดแผนอัตโนมัติเรียบร้อยแล้ว',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  'จัด${AutoPlanService.getPlanName(planType)}เรียบร้อยแล้ว',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AutoPlanService.getPlanDescription(planType),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
             ),
             actions: [
               Center(
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text(
-                    'OK',
+                    'ตกลง',
                     style: TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,

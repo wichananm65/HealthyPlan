@@ -147,7 +147,6 @@ class MenuService {
     }).toList();
   }
 
-  // เพิ่มฟังก์ชันกรองตามระดับน้ำตาล
   List<MenuModel> filterMenusBySugar({double? minSugar, double? maxSugar}) {
     return _allMenus.where((menu) {
       bool matchMin = minSugar == null || menu.sugarContent >= minSugar;
@@ -164,27 +163,56 @@ class MenuService {
     }
   }
 
+  // Updated addMenu method to handle both List<String> and String for ingredients/howTo
   Future<String> addMenu({
     required String foodName,
     required String benefit,
     required int calories,
     required double sugarContent,
-    required String howTo,
-    required List<String> ingredients,
+    required dynamic howTo, // Can be List<String> or String
+    required dynamic ingredients, // Can be List<String> or String
     String? picture,
   }) async {
     try {
+      // Convert howTo to appropriate format
+      dynamic howToData;
+      if (howTo is List<String>) {
+        howToData = howTo;
+      } else if (howTo is String) {
+        // Split by newlines if it's a string with numbered steps
+        howToData =
+            howTo.split('\n').where((step) => step.trim().isNotEmpty).toList();
+      } else {
+        howToData = howTo.toString();
+      }
+
+      // Convert ingredients to appropriate format
+      dynamic ingredientData;
+      if (ingredients is List<String>) {
+        ingredientData = ingredients;
+      } else if (ingredients is String) {
+        // Split by newlines if it's a string with numbered ingredients
+        ingredientData =
+            ingredients
+                .split('\n')
+                .where((ingredient) => ingredient.trim().isNotEmpty)
+                .toList();
+      } else {
+        ingredientData = ingredients.toString();
+      }
+
       DocumentReference docRef = await _menuCollection.add({
         'foodName': foodName,
         'benefit': benefit,
         'calories': calories,
         'sugarContent': sugarContent,
-        'howTo': howTo,
-        'ingredient': ingredients,
+        'howTo': howToData,
+        'ingredient': ingredientData,
         'picture': picture,
         'created_at': FieldValue.serverTimestamp(),
       });
 
+      // Refresh the cache after adding
       await loadAllMenus(forceRefresh: true);
 
       return docRef.id;
@@ -196,7 +224,6 @@ class MenuService {
   Future<void> updateMenu(String menuId, Map<String, dynamic> data) async {
     try {
       await _menuCollection.doc(menuId).update(data);
-
       await loadAllMenus(forceRefresh: true);
     } catch (e) {
       throw Exception('เกิดข้อผิดพลาดในการอัปเดตเมนู: $e');
@@ -206,7 +233,6 @@ class MenuService {
   Future<void> deleteMenu(String menuId) async {
     try {
       await _menuCollection.doc(menuId).delete();
-
       await loadAllMenus(forceRefresh: true);
     } catch (e) {
       throw Exception('เกิดข้อผิดพลาดในการลบเมนู: $e');
@@ -219,8 +245,6 @@ class MenuService {
   }
 
   bool get isLoaded => _isLoaded;
-
   int get totalMenuCount => _allMenus.length;
-
   List<MenuModel> get allMenus => List.unmodifiable(_allMenus);
 }

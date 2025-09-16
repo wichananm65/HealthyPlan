@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/drawer.dart';
 import 'package:healthy_plan/services/menu_service.dart';
@@ -439,7 +441,7 @@ class _TodaySummaryPageState extends State<TodaySummaryPage> {
             ),
           ),
           Text(
-            '${value.toStringAsFixed(0)}',
+            value.toStringAsFixed(0),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

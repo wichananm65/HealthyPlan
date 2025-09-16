@@ -321,6 +321,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
+                        // ignore: deprecated_member_use
                         value: _selectedGender,
                         decoration: InputDecoration(
                           labelText: 'เพศ',
