@@ -218,8 +218,14 @@ class _MenuPageState extends State<MenuPage> {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
+                image:
+                    widget.menu.picture != null
+                        ? DecorationImage(
+                          image: NetworkImage(widget.menu.picture!),
+                          fit: BoxFit.cover,
+                        )
+                        : null,
               ),
-              child: const Icon(Icons.restaurant, size: 50, color: Colors.grey),
             ),
             const SizedBox(height: 20),
 

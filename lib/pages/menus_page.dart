@@ -172,11 +172,13 @@ class _MenusPageState extends State<MenusPage> {
                                 color: Colors.green[50],
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(color: Colors.green[200]!),
-                              ),
-                              child: const Icon(
-                                Icons.restaurant,
-                                color: Colors.green,
-                                size: 30,
+                                image:
+                                    menu.picture != null
+                                        ? DecorationImage(
+                                          image: NetworkImage(menu.picture!),
+                                          fit: BoxFit.cover,
+                                        )
+                                        : null,
                               ),
                             ),
                             title: Text(
