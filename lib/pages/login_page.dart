@@ -69,7 +69,15 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 300),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 300,
+                  child: Image.asset(
+                    'lib/assets/Logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
