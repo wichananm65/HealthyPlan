@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously, deprecated_member_use, unnecessary_to_list_in_spreads
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -31,8 +33,6 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
   String? _imageFileName;
   String? _currentImageUrl;
   final ImagePicker _picker = ImagePicker();
-
-  // ✅ เพิ่มตัวแปรสำหรับประเภทอาหาร
   late String _selectedType;
 
   @override
@@ -48,10 +48,8 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
     );
     _currentImageUrl = widget.menu.picture;
 
-    // ✅ กำหนดค่าเริ่มต้นของประเภทจากข้อมูลเดิม
     _selectedType = widget.menu.type;
 
-    // Parse ingredients
     final ingredients =
         widget.menu.ingredient
             .split('\n')
@@ -66,7 +64,6 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
       _ingredientControllers.add(TextEditingController());
     }
 
-    // Parse how to
     final howTo =
         widget.menu.howTo
             .split('\n')
@@ -213,7 +210,7 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
         'ingredient': ingredients,
         'howTo': howTo,
         'picture': imageUrl,
-        'type': _selectedType, // ✅ เพิ่มการบันทึก type
+        'type': _selectedType,
       });
 
       if (mounted) {
@@ -239,7 +236,6 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
     setState(() => _isLoading = false);
   }
 
-  // ✅ เพิ่ม Widget สำหรับเลือกประเภท
   Widget _buildTypeDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedType,
@@ -316,7 +312,6 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
                                   : null,
                     ),
                     const SizedBox(height: 16),
-                    // ✅ เพิ่ม Dropdown ประเภท
                     _buildTypeDropdown(),
                     const SizedBox(height: 16),
                     _buildTextField(

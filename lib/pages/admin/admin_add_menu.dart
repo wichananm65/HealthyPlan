@@ -1,9 +1,10 @@
+// ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously, deprecated_member_use, unnecessary_to_list_in_spreads
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:healthy_plan/services/menu_service.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 
@@ -25,10 +26,7 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
   ];
   List<TextEditingController> _howToControllers = [TextEditingController()];
   bool _isLoading = false;
-
-  // ✅ เพิ่มตัวแปรสำหรับประเภทอาหาร
-  String _selectedType = 'อาหาร'; // ค่าเริ่มต้น
-
+  String _selectedType = 'อาหาร';
   File? _selectedImageFile;
   Uint8List? _webImageBytes;
   String? _imageFileName;
@@ -165,7 +163,7 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
         ingredients: ingredients,
         howTo: howTo,
         picture: imageUrl,
-        type: _selectedType, // ✅ เพิ่ม type
+        type: _selectedType,
       );
 
       if (mounted) {
@@ -205,7 +203,7 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
       _selectedImageFile = null;
       _webImageBytes = null;
       _imageFileName = null;
-      _selectedType = 'อาหาร'; // รีเซ็ตเป็นค่าเริ่มต้น
+      _selectedType = 'อาหาร';
     });
   }
 
@@ -247,7 +245,6 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
                                   : null,
                     ),
                     const SizedBox(height: 16),
-                    // ✅ เพิ่ม Dropdown สำหรับเลือกประเภท
                     _buildTypeDropdown(),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -363,7 +360,6 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
     );
   }
 
-  // ✅ เพิ่ม Widget สำหรับเลือกประเภท
   Widget _buildTypeDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedType,

@@ -229,7 +229,6 @@ class _MenuPageState extends State<MenuPage> {
             ),
             const SizedBox(height: 20),
 
-            // Nutrition Info Display (Updated)
             Row(
               children: [
                 // Calories display

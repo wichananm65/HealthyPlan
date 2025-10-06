@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
 
         showDialog(
-          // ignore: use_build_context_synchronously
           context: context,
           builder: (context) {
             return const AlertDialog(
@@ -38,7 +39,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
       } on FirebaseAuthException catch (e) {
         showDialog(
-          // ignore: use_build_context_synchronously
           context: context,
           builder: (context) {
             return AlertDialog(content: Text(e.message.toString()));

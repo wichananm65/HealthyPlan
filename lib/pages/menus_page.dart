@@ -76,7 +76,7 @@ class _MenusPageState extends State<MenusPage> {
 
   void _onFilterSelected(FilterOption option) {
     _selectedFilter = option;
-    _applySearch(); // รีแสดงผลทั้ง search + filter
+    _applySearch();
   }
 
   @override
@@ -259,7 +259,7 @@ class _MenusPageState extends State<MenusPage> {
                                 } else {
                                   await UserService().addFavourite(menu.id);
                                 }
-                                setState(() {}); // รีเฟรช UI
+                                setState(() {});
                               },
                             ),
                             onTap: () {

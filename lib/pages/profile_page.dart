@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:healthy_plan/drawer.dart';
 import 'package:healthy_plan/services/user_service.dart';
@@ -36,7 +38,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       _ageController.text = UserService().getAge().toString();
       _weightController.text = UserService().getWeight().toString();
       _heightController.text = UserService().getHeight().toString();
-      _selectedGender = UserService().getGender(); // ดึงค่าเดิม
+      _selectedGender = UserService().getGender();
     });
   }
 
@@ -48,8 +50,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     final age = int.tryParse(_ageController.text.trim());
     final weight = double.tryParse(_weightController.text.trim());
     final height = double.tryParse(_heightController.text.trim());
-    final gender =
-        _selectedGender ?? UserService().getGender(); // ถ้าไม่แก้ ใช้ค่าเดิม
+    final gender = _selectedGender ?? UserService().getGender();
 
     await UserService().updateUser(
       firstName: name,
@@ -134,7 +135,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   Widget _buildGenderField() {
     return DropdownButtonFormField<String>(
-      // ignore: deprecated_member_use
       value: _selectedGender ?? UserService().getGender(),
       decoration: InputDecoration(
         labelText: 'เพศ',
