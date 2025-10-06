@@ -26,6 +26,9 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
   List<TextEditingController> _howToControllers = [TextEditingController()];
   bool _isLoading = false;
 
+  // ✅ เพิ่มตัวแปรสำหรับประเภทอาหาร
+  String _selectedType = 'อาหาร'; // ค่าเริ่มต้น
+
   File? _selectedImageFile;
   Uint8List? _webImageBytes;
   String? _imageFileName;
@@ -81,29 +84,27 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
 
     try {
       final cloudinary = CloudinaryPublic(
-        'dkxhgge2v', // ✅ แทนด้วยของคุณ
-        'healthy_plan_upload', // ✅ แทนด้วยของคุณ
+        'dkxhgge2v',
+        'healthy_plan_upload',
         cache: false,
       );
 
       CloudinaryResponse response;
 
       if (kIsWeb && _webImageBytes != null) {
-        // ✅ สำหรับเว็บ
         response = await cloudinary.uploadFile(
           CloudinaryFile.fromBytesData(
             _webImageBytes!,
-            identifier: 'menu_image', // ← เพิ่มบรรทัดนี้
+            identifier: 'menu_image',
             resourceType: CloudinaryResourceType.Image,
             folder: 'menu_images',
           ),
         );
       } else if (_selectedImageFile != null) {
-        // ✅ สำหรับมือถือ
         response = await cloudinary.uploadFile(
           CloudinaryFile.fromFile(
             _selectedImageFile!.path,
-            identifier: 'menu_image', // ← เพิ่มบรรทัดนี้
+            identifier: 'menu_image',
             folder: 'menu_images',
             resourceType: CloudinaryResourceType.Image,
           ),
@@ -112,7 +113,7 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
         return null;
       }
 
-      return response.secureUrl; // ✅ URL รูปที่จะเก็บใน Firebase
+      return response.secureUrl;
     } catch (e) {
       throw Exception('อัปโหลดรูปไม่สำเร็จ: ${e.toString()}');
     }
@@ -143,7 +144,7 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
     setState(() => _isLoading = true);
 
     try {
-      final imageUrl = await _uploadImage(); // คืนค่า null ได้
+      final imageUrl = await _uploadImage();
       final ingredients =
           _ingredientControllers
               .map((c) => c.text.trim())
@@ -163,7 +164,8 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
         sugarContent: double.parse(_sugarController.text.trim()),
         ingredients: ingredients,
         howTo: howTo,
-        picture: imageUrl, // สามารถเป็น null ได้
+        picture: imageUrl,
+        type: _selectedType, // ✅ เพิ่ม type
       );
 
       if (mounted) {
@@ -203,10 +205,10 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
       _selectedImageFile = null;
       _webImageBytes = null;
       _imageFileName = null;
+      _selectedType = 'อาหาร'; // รีเซ็ตเป็นค่าเริ่มต้น
     });
   }
 
-  // --- UI เหมือนเดิม ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -244,6 +246,9 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
                                   ? 'กรุณากรอกชื่อเมนู'
                                   : null,
                     ),
+                    const SizedBox(height: 16),
+                    // ✅ เพิ่ม Dropdown สำหรับเลือกประเภท
+                    _buildTypeDropdown(),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _benefitController,
@@ -299,7 +304,6 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                // --- ส่วนผสม และ วิธีทำ ---
                 _buildIngredientCard(),
                 const SizedBox(height: 20),
                 _buildHowToCard(),
@@ -356,6 +360,46 @@ class _AdminAddMenuPageState extends State<AdminAddMenuPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // ✅ เพิ่ม Widget สำหรับเลือกประเภท
+  Widget _buildTypeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedType,
+      decoration: InputDecoration(
+        labelText: 'ประเภท',
+        labelStyle: const TextStyle(color: Colors.green),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.green, width: 2),
+        ),
+        prefixIcon: Icon(
+          _selectedType == 'อาหาร' ? Icons.restaurant : Icons.local_drink,
+          color: Colors.green,
+        ),
+      ),
+      items: const [
+        DropdownMenuItem(value: 'อาหาร', child: Text('อาหาร')),
+        DropdownMenuItem(value: 'เครื่องดื่ม', child: Text('เครื่องดื่ม')),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedType = value;
+          });
+        }
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'กรุณาเลือกประเภท';
+        return null;
+      },
     );
   }
 

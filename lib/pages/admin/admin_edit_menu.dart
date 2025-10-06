@@ -32,6 +32,9 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
   String? _currentImageUrl;
   final ImagePicker _picker = ImagePicker();
 
+  // ✅ เพิ่มตัวแปรสำหรับประเภทอาหาร
+  late String _selectedType;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,9 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
       text: widget.menu.sugarContent.toString(),
     );
     _currentImageUrl = widget.menu.picture;
+
+    // ✅ กำหนดค่าเริ่มต้นของประเภทจากข้อมูลเดิม
+    _selectedType = widget.menu.type;
 
     // Parse ingredients
     final ingredients =
@@ -207,6 +213,7 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
         'ingredient': ingredients,
         'howTo': howTo,
         'picture': imageUrl,
+        'type': _selectedType, // ✅ เพิ่มการบันทึก type
       });
 
       if (mounted) {
@@ -230,6 +237,46 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
     }
 
     setState(() => _isLoading = false);
+  }
+
+  // ✅ เพิ่ม Widget สำหรับเลือกประเภท
+  Widget _buildTypeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedType,
+      decoration: InputDecoration(
+        labelText: 'ประเภท',
+        labelStyle: const TextStyle(color: Colors.green),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.green, width: 2),
+        ),
+        prefixIcon: Icon(
+          _selectedType == 'อาหาร' ? Icons.restaurant : Icons.local_drink,
+          color: Colors.green,
+        ),
+      ),
+      items: const [
+        DropdownMenuItem(value: 'อาหาร', child: Text('อาหาร')),
+        DropdownMenuItem(value: 'เครื่องดื่ม', child: Text('เครื่องดื่ม')),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedType = value;
+          });
+        }
+      },
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'กรุณาเลือกประเภท';
+        return null;
+      },
+    );
   }
 
   @override
@@ -268,6 +315,9 @@ class _AdminEditMenuPageState extends State<AdminEditMenuPage> {
                                   ? 'กรุณากรอกชื่อเมนู'
                                   : null,
                     ),
+                    const SizedBox(height: 16),
+                    // ✅ เพิ่ม Dropdown ประเภท
+                    _buildTypeDropdown(),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _benefitController,

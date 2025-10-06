@@ -9,6 +9,7 @@ class MenuModel {
   final String howTo;
   final String ingredient;
   final String? picture;
+  final String type;
 
   MenuModel({
     required this.id,
@@ -18,6 +19,7 @@ class MenuModel {
     required this.foodName,
     required this.howTo,
     required this.ingredient,
+    required this.type,
     this.picture,
   });
 
@@ -64,6 +66,7 @@ class MenuModel {
       foodName: data['foodName']?.toString() ?? '',
       howTo: convertToString(data['howTo']),
       ingredient: convertToString(data['ingredient']),
+      type: data['type']?.toString() ?? 'อาหาร',
       picture: data['picture']?.toString(),
     );
   }
@@ -172,6 +175,7 @@ class MenuService {
     required dynamic howTo, // Can be List<String> or String
     required dynamic ingredients, // Can be List<String> or String
     String? picture,
+    required String type,
   }) async {
     try {
       // Convert howTo to appropriate format
@@ -209,6 +213,7 @@ class MenuService {
         'howTo': howToData,
         'ingredient': ingredientData,
         'picture': picture,
+        'type': type,
         'created_at': FieldValue.serverTimestamp(),
       });
 
